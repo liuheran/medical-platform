@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>医生工作台 - 在线问诊平台</title>
+    <link rel="stylesheet" href="../css/common.css">
+    <link rel="stylesheet" href="../css/doctor.css">
+    <style>
+        body {
+            background: var(--bg-secondary);
+        }
+
+        .admin-page {
+            min-height: 100vh;
+            padding-bottom: 0;
+        }
+
+        .admin-header {
+            background: linear-gradient(135deg, #001529, #003366);
+            color: #fff;
+            padding: 24px;
+        }
+
+        .admin-header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .admin-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .admin-logo-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .admin-logo-text {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .admin-user {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .admin-user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            overflow: hidden;
+        }
+
+        .admin-user-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .admin-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+        }
+
+        .admin-stat-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 16px;
+            text-align: center;
+        }
+
+        .admin-stat-value {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .admin-stat-label {
+            font-size: 13px;
+            opacity: 0.8;
+        }
+
+        .admin-content {
+            padding: 24px;
+        }
+
+        .admin-card {
+            background: var(--bg-color);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .admin-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .admin-card-title {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .admin-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .admin-table th,
+        .admin-table td {
+            padding: 12px 8px;
+            text-align: left;
+            border-bottom: 1px solid var(--bg-secondary);
+            font-size: 14px;
+        }
+
+        .admin-table th {
+            color: var(--text-secondary);
+            font-weight: normal;
+        }
+
+        .admin-sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 200px;
+            background: #001529;
+            padding-top: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .admin-sidebar-item {
+            padding: 12px 20px;
+            color: rgba(255, 255, 255, 0.65);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .admin-sidebar-item:hover {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .admin-sidebar-item.active {
+            color: #fff;
+            background: var(--primary-color);
+        }
+
+        .admin-main {
+            margin-left: 200px;
+            min-height: 100vh;
+            background: var(--bg-secondary);
+        }
+
+        .admin-topbar {
+            height: 64px;
+            background: var(--bg-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .admin-breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        /* PC端布局 */
+        @media (min-width: 768px) {
+            .admin-sidebar {
+                display: flex;
+            }
+
+            .admin-mobile-header {
+                display: none;
+            }
+        }
+
+        /* 移动端布局 */
+        @media (max-width: 767px) {
+            .admin-sidebar {
+                display: none;
+            }
+
+            .admin-main {
+                margin-left: 0;
+            }
+
+            .admin-stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .data-overview {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .data-card {
+            background: var(--bg-color);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .data-card-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+        }
+
+        .data-card-info {
+            flex: 1;
+        }
+
+        .data-card-value {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .data-card-label {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .data-card-trend {
+            font-size: 12px;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .data-card-trend.up {
+            background: var(--success-bg);
+            color: var(--success-color);
+        }
+
+        .data-card-trend.down {
+            background: var(--error-bg);
+            color: var(--error-color);
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-page">
+        <!-- PC端侧边栏 -->
+        <div class="admin-sidebar">
+            <div style="padding: 0 20px 20px; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 12px;">
+                <div style="display: flex; align-items: center; gap: 10px; color: #fff;">
+                    <div style="width: 36px; height: 36px; background: var(--primary-color); border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                        <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                            <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-1 11h-4v4h-4v-4H6v-4h4V6h4v4h4v4z"/>
+                        </svg>
+                    </div>
+                    <span style="font-weight: 600;">在线问诊平台</span>
+                </div>
+            </div>
+            <div class="admin-sidebar-item active">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+                    <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/>
+                </svg>
+                <span>工作台</span>
+            </div>
+            <div class="admin-sidebar-item" onclick="showToast('用户管理')">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+                    <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+                </svg>
+                <span>用户管理</span>
+            </div>
+            <div class="admin-sidebar-item" onclick="showToast('医生管理')">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+                    <path d="M19 8h-1V3H6v5H5c-1.66 0-3 1.34-3 3v6h4v4h12v-4h4v-6c0-1.66-1.34-3-3-3zM8 5h8v3H8V5zm8 14H8v-4h8v4zm2-4v-2H6v2H4v-4c0-.55.45-1 1-1h14c.55 0 1 .45 1 1v4h-2z"/>
+                </svg>
+                <span>医生管理</span>
+            </div>
+            <div class="admin-sidebar-item" onclick="showToast('订单管理')">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+                    <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+                </svg>
+                <span>订单管理</span>
+            </div>
+            <div class="admin-sidebar-item" onclick="showToast('药品管理')">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+                    <path d="M4.22 11.29l4.95-4.95c.78-.78 2.05-.78 2.83 0l4.95 4.95c.78.78.78 2.05 0 2.83l-4.95 4.95c-.78.78-2.05.78-2.83 0l-4.95-4.95c-.78-.78-.78-2.05 0-2.83z"/>
+                </svg>
+                <span>药品管理</span>
+            </div>
+            <div class="admin-sidebar-item" onclick="showToast('数据统计')">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+                    <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/>
+                </svg>
+                <span>数据统计</span>
+            </div>
+        </div>
+
+        <!-- 移动端顶部 -->
+        <div class="admin-mobile-header" style="background: #001529; color: #fff; padding: 16px;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div style="font-size: 18px; font-weight: 600;">在线问诊平台</div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span>管理员</span>
+                    <div style="width: 32px; height: 32px; background: rgba(255,255,255,0.2); border-radius: 50%;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 主内容区 -->
+        <div class="admin-main">
+            <!-- 顶部栏 -->
+            <div class="admin-topbar">
+                <div class="admin-breadcrumb">
+                    <span>首页</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 16px;">
+                    <span style="color: var(--text-secondary); font-size: 14px;">2026-05-10 15:03:45</span>
+                    <div style="width: 32px; height: 32px; background: var(--bg-secondary); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+                            <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 数据概览 -->
+            <div class="admin-content">
+                <div class="data-overview">
+                    <div class="data-card">
+                        <div class="data-card-icon" style="background: var(--primary-bg); color: var(--primary-color);">
+                            <svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor">
+                                <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+                            </svg>
+                        </div>
+                        <div class="data-card-info">
+                            <div class="data-card-value">1,256</div>
+                            <div class="data-card-label">总用户数</div>
+                        </div>
+                        <div class="data-card-trend up">+12.5%</div>
+                    </div>
+                    <div class="data-card">
+                        <div class="data-card-icon" style="background: var(--success-bg); color: var(--success-color);">
+                            <svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor">
+                                <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/>
+                            </svg>
+                        </div>
+                        <div class="data-card-info">
+                            <div class="data-card-value">856</div>
+                            <div class="data-card-label">总问诊量</div>
+                        </div>
+                        <div class="data-card-trend up">+8.3%</div>
+                    </div>
+                    <div class="data-card">
+                        <div class="data-card-icon" style="background: var(--warning-bg); color: var(--warning-color);">
+                            <svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor">
+                                <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+                            </svg>
+                        </div>
+                        <div class="data-card-info">
+                            <div class="data-card-value">512</div>
+                            <div class="data-card-label">总处方数</div>
+                        </div>
+                        <div class="data-card-trend up">+5.2%</div>
+                    </div>
+                    <div class="data-card">
+                        <div class="data-card-icon" style="background: #F0E6FF; color: #722ED1;">
+                            <svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor">
+                                <path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/>
+                            </svg>
+                        </div>
+                        <div class="data-card-info">
+                            <div class="data-card-value">¥25,680</div>
+                            <div class="data-card-label">今日收入</div>
+                        </div>
+                        <div class="data-card-trend up">+15.6%</div>
+                    </div>
+                </div>
+
+                <!-- 快捷操作 -->
+                <div class="admin-card">
+                    <div class="admin-card-header">
+                        <h3 class="admin-card-title">快捷操作</h3>
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px;">
+                        <div style="text-align: center; padding: 16px; background: var(--bg-secondary); border-radius: 8px; cursor: pointer;" onclick="showToast('用户管理')">
+                            <div style="width: 48px; height: 48px; background: var(--primary-bg); color: var(--primary-color); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 8px;">
+                                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                                    <path d="M15 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm-9-2V7H4v3H1v2h3v3h2v-3h3v-2H6zm9 4c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                                </svg>
+                            </div>
+                            <div style="font-size: 14px;">添加用户</div>
+                        </div>
+                        <div style="text-align: center; padding: 16px; background: var(--bg-secondary); border-radius: 8px; cursor: pointer;" onclick="showToast('医生审核')">
+                            <div style="width: 48px; height: 48px; background: var(--success-bg); color: var(--success-color); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 8px;">
+                                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                                    <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                                </svg>
+                            </div>
+                            <div style="font-size: 14px;">医生审核</div>
+                        </div>
+                        <div style="text-align: center; padding: 16px; background: var(--bg-secondary); border-radius: 8px; cursor: pointer;" onclick="showToast('药品管理')">
+                            <div style="width: 48px; height: 48px; background: var(--warning-bg); color: var(--warning-color); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 8px;">
+                                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                                    <path d="M4.22 11.29l4.95-4.95c.78-.78 2.05-.78 2.83 0l4.95 4.95c.78.78.78 2.05 0 2.83l-4.95 4.95c-.78.78-2.05.78-2.83 0l-4.95-4.95c-.78-.78-.78-2.05 0-2.83z"/>
+                                </svg>
+                            </div>
+                            <div style="font-size: 14px;">添加药品</div>
+                        </div>
+                        <div style="text-align: center; padding: 16px; background: var(--bg-secondary); border-radius: 8px; cursor: pointer;" onclick="showToast('系统设置')">
+                            <div style="width: 48px; height: 48px; background: #F0E6FF; color: #722ED1; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 8px;">
+                                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                                    <path d="M19.14 12.94c.04-.31.06-.63.06-.94 0-.31-.02-.63-.06-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
+                                </svg>
+                            </div>
+                            <div style="font-size: 14px;">系统设置</div>
+                        </div>
+                        <div style="text-align: center; padding: 16px; background: var(--bg-secondary); border-radius: 8px; cursor: pointer;" onclick="showToast('数据报表')">
+                            <div style="width: 48px; height: 48px; background: var(--error-bg); color: var(--error-color); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 8px;">
+                                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                                    <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/>
+                                </svg>
+                            </div>
+                            <div style="font-size: 14px;">数据报表</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 最新订单 -->
+                <div class="admin-card">
+                    <div class="admin-card-header">
+                        <h3 class="admin-card-title">最新订单</h3>
+                        <a href="#" style="color: var(--primary-color); font-size: 13px;" onclick="showToast('查看全部'); return false;">查看全部</a>
+                    </div>
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>订单号</th>
+                                <th>用户</th>
+                                <th>金额</th>
+                                <th>状态</th>
+                                <th>时间</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>ORD202605100000001</td>
+                                <td>张三</td>
+                                <td>¥110.00</td>
+                                <td><span style="color: var(--warning-color);">待发货</span></td>
+                                <td>2026-05-10 12:00</td>
+                            </tr>
+                            <tr>
+                                <td>ORD202605100000002</td>
+                                <td>李四</td>
+                                <td>¥56.00</td>
+                                <td><span style="color: var(--success-color);">已完成</span></td>
+                                <td>2026-05-10 11:30</td>
+                            </tr>
+                            <tr>
+                                <td>ORD202605090000001</td>
+                                <td>王五</td>
+                                <td>¥28.00</td>
+                                <td><span style="color: var(--text-secondary);">已取消</span></td>
+                                <td>2026-05-09 15:20</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/mock-data.js"></script>
+</body>
+</html>

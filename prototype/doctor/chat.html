@@ -1,0 +1,1226 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>问诊聊天 - 医生端</title>
+    <script src="../js/avatar.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background-color: #f5f5f5;
+            min-height: 100vh;
+        }
+
+        /* 顶部导航 */
+        .chat-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 56px;
+            background: #fff;
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+            z-index: 100;
+        }
+
+        .chat-header-back {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .chat-header-info {
+            flex: 1;
+            margin-left: 12px;
+        }
+
+        .chat-header-name {
+            font-size: 16px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .chat-header-status {
+            font-size: 12px;
+            color: #52c41a;
+            margin-top: 2px;
+        }
+
+        .chat-header-actions {
+            display: flex;
+            gap: 16px;
+        }
+
+        .chat-header-btn {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        /* 患者信息卡片 */
+        .patient-info-card {
+            position: fixed;
+            top: 56px;
+            left: 0;
+            right: 0;
+            background: #fff;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            z-index: 90;
+        }
+
+        /* 处方状态卡片 */
+        .prescription-status-card {
+            position: fixed;
+            top: 120px;
+            left: 16px;
+            right: 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            padding: 16px;
+            color: #fff;
+            z-index: 85;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .prescription-status-card:active {
+            transform: scale(0.98);
+        }
+        .prescription-status-card.draft {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+        .prescription-status-card.pending {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+        }
+        .prescription-status-card.approved {
+            background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
+        }
+        .prescription-status-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .prescription-status-card-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 15px;
+            font-weight: 600;
+        }
+        .prescription-status-card-title svg {
+            width: 20px;
+            height: 20px;
+        }
+        .prescription-status-badge {
+            padding: 4px 10px;
+            background: rgba(255,255,255,0.25);
+            border-radius: 12px;
+            font-size: 12px;
+        }
+        .prescription-status-card-info {
+            font-size: 13px;
+            opacity: 0.9;
+            margin-bottom: 8px;
+        }
+        .prescription-status-card-drugs {
+            font-size: 12px;
+            opacity: 0.8;
+            padding-top: 8px;
+            border-top: 1px solid rgba(255,255,255,0.2);
+        }
+        .prescription-status-card-action {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+            font-size: 12px;
+            opacity: 0.9;
+        }
+        .prescription-status-card-action span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .patient-info-card .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            overflow: hidden;
+            margin-right: 12px;
+        }
+
+        .patient-info-card .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .patient-info-card .info {
+            flex: 1;
+        }
+
+        .patient-info-card .name {
+            font-size: 15px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .patient-info-card .meta {
+            font-size: 12px;
+            color: #999;
+            margin-top: 2px;
+        }
+
+        .patient-info-card .actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .patient-info-btn {
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            border: none;
+        }
+
+        .patient-info-btn.primary {
+            background: #1890ff;
+            color: #fff;
+        }
+
+        .patient-info-btn.outline {
+            background: #fff;
+            color: #1890ff;
+            border: 1px solid #1890ff;
+        }
+
+        /* 聊天消息区域 */
+        .chat-messages {
+            padding: 176px 16px 80px;
+            min-height: 100vh;
+        }
+
+        .message-time {
+            text-align: center;
+            padding: 12px 0;
+        }
+
+        .message-time span {
+            background: rgba(0, 0, 0, 0.08);
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            color: #999;
+        }
+
+        .message {
+            display: flex;
+            margin-bottom: 16px;
+        }
+
+        .message.patient {
+            flex-direction: row;
+        }
+
+        .message.doctor {
+            flex-direction: row-reverse;
+        }
+
+        .message-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .message-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .message-content {
+            max-width: 70%;
+            margin: 0 8px;
+        }
+
+        .message-bubble {
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 15px;
+            line-height: 1.5;
+        }
+
+        .message.patient .message-bubble {
+            background: #fff;
+            color: #333;
+        }
+
+        .message.doctor .message-bubble {
+            background: #1890ff;
+            color: #fff;
+        }
+
+        .message-image {
+            max-width: 200px;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .message-image img {
+            width: 100%;
+            display: block;
+        }
+
+        /* 问诊卡片 */
+        .inquiry-card {
+            background: #fff;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 16px;
+            max-width: 70%;
+        }
+
+        .inquiry-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .inquiry-card-title {
+            font-size: 14px;
+            color: #333;
+        }
+
+        .inquiry-card-tag {
+            background: #fff7e6;
+            color: #fa8c16;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        .inquiry-card-info {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .inquiry-card-desc {
+            font-size: 13px;
+            color: #999;
+        }
+
+        /* 处方卡片 */
+        .prescription-card {
+            background: #fff;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 16px;
+            max-width: 70%;
+        }
+
+        .prescription-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .prescription-card-title {
+            font-size: 14px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .prescription-card-status {
+            font-size: 12px;
+            color: #52c41a;
+        }
+
+        .prescription-card-items {
+            font-size: 13px;
+            color: #666;
+            line-height: 1.8;
+        }
+
+        .prescription-card-action {
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .prescription-card-btn {
+            width: 100%;
+            padding: 8px;
+            background: #1890ff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        /* 输入区域 */
+        .chat-input-area {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #fff;
+            padding: 12px 16px;
+            box-shadow: 0 -1px 3px rgba(0, 0, 0, 0.08);
+            z-index: 100;
+        }
+
+        .chat-input-toolbar {
+            display: flex;
+            flex-wrap: nowrap;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 12px;
+        }
+
+        .chat-input-tool {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+        
+        #media-tools {
+            display: flex;
+            gap: 0;
+        }
+
+        .chat-input-wrapper {
+            display: flex;
+            align-items: flex-end;
+            gap: 12px;
+        }
+
+        .chat-input {
+            flex: 1;
+            min-height: 36px;
+            max-height: 100px;
+            padding: 8px 12px;
+            border: 1px solid #e8e8e8;
+            border-radius: 18px;
+            font-size: 15px;
+            line-height: 1.5;
+            resize: none;
+            outline: none;
+        }
+
+        .chat-input:focus {
+            border-color: #1890ff;
+        }
+
+        .chat-send-btn {
+            width: 56px;
+            height: 36px;
+            background: #1890ff;
+            color: #fff;
+            border: none;
+            border-radius: 18px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        /* Toast 提示 */
+        .toast {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.75);
+            color: #fff;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            z-index: 1000;
+            display: none;
+        }
+
+        .toast.show {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translate(-50%, -50%) scale(0.9); }
+            to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+        }
+
+        /* 快捷操作面板 */
+        .quick-actions {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #fff;
+            border-radius: 12px;
+            padding: 20px;
+            width: 300px;
+            z-index: 200;
+            display: none;
+        }
+
+        .quick-actions.show {
+            display: block;
+            animation: slideUp 0.3s;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translate(-50%, -40%); }
+            to { opacity: 1; transform: translate(-50%, -50%); }
+        }
+
+        .quick-actions-title {
+            font-size: 16px;
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 16px;
+            text-align: center;
+        }
+
+        .quick-actions-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .quick-action-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 12px;
+            background: #f5f5f5;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .quick-action-item:hover {
+            background: #e6f7ff;
+        }
+
+        .quick-action-icon {
+            width: 40px;
+            height: 40px;
+            background: #1890ff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 8px;
+        }
+
+        .quick-action-text {
+            font-size: 12px;
+            color: #333;
+        }
+
+        .quick-actions-close {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .mask {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 150;
+            display: none;
+        }
+
+        .mask.show {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部导航 -->
+    <div class="chat-header">
+        <div class="chat-header-back" onclick="location.href='index.html'">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2">
+                <path d="M15 18l-6-6 6-6"/>
+            </svg>
+        </div>
+        <div class="chat-header-info">
+            <div class="chat-header-name">张三</div>
+            <div class="chat-header-status">在线</div>
+        </div>
+        <div class="chat-header-actions">
+            <div class="chat-header-btn" onclick="showToast('电话联系')">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="#52c41a">
+                    <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>
+                </svg>
+            </div>
+            <div class="chat-header-btn" onclick="location.href='patient-detail.html'">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="#666">
+                    <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <!-- 患者信息卡片 -->
+    <div class="patient-info-card">
+        <div class="avatar">
+            <img src="https://i.pravatar.cc/150?img=1" alt="张三" id="patient-card-avatar" onerror="this.src=generateAvatar(this.alt)">
+        </div>
+        <div class="info">
+            <div class="name">张三</div>
+            <div class="meta">女 · 45岁 · 高血压病史3年</div>
+        </div>
+        <div class="actions">
+            <button class="patient-info-btn outline" onclick="goToPrescription()">开处方</button>
+            <button class="patient-info-btn primary" onclick="toggleQuickActions()">快捷回复</button>
+        </div>
+    </div>
+
+    <!-- 处方状态卡片 -->
+    <div class="prescription-status-card" id="prescription-status-card" style="display: none;" onclick="goToPrescription()">
+        <div class="prescription-status-card-header">
+            <div class="prescription-status-card-title">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+                </svg>
+                <span id="prescription-card-title">电子处方</span>
+            </div>
+            <span class="prescription-status-badge" id="prescription-card-status">草稿</span>
+        </div>
+        <div class="prescription-status-card-info" id="prescription-card-info">
+            处方号：待生成
+        </div>
+        <div class="prescription-status-card-drugs" id="prescription-card-drugs">
+            药品：暂无
+        </div>
+        <div class="prescription-status-card-action">
+            <span id="prescription-card-time">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
+                    <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/>
+                </svg>
+                刚刚保存
+            </span>
+            <span>点击查看详情 →</span>
+        </div>
+    </div>
+
+    <!-- 聊天消息区域 -->
+    <div class="chat-messages" id="chat-messages">
+        <div class="message-time">
+            <span>今天 10:30</span>
+        </div>
+
+        <!-- 患者消息 -->
+        <div class="message patient">
+            <div class="message-avatar">
+                <img src="https://i.pravatar.cc/150?img=1" alt="患者" onerror="this.src=generateAvatar(this.alt)">
+            </div>
+            <div class="message-content">
+                <div class="message-bubble">
+                    医生您好，我最近感觉头晕，有时候胸口闷，之前血压有点高，您看是怎么回事？
+                </div>
+            </div>
+        </div>
+
+        <!-- 医生消息 -->
+        <div class="message doctor">
+            <div class="message-avatar">
+                <img src="https://i.pravatar.cc/150?img=68" alt="">
+            </div>
+            <div class="message-content">
+                <div class="message-bubble">
+                    您好，根据您描述的症状，头晕和胸口闷可能与血压波动有关。请问您最近有没有测量过血压？血压值大概是多少？有没有规律服用降压药？
+                </div>
+            </div>
+        </div>
+
+        <!-- 患者消息 -->
+        <div class="message patient">
+            <div class="message-avatar">
+                <img src="https://i.pravatar.cc/150?img=1" alt="患者" onerror="this.src=generateAvatar(this.alt)">
+            </div>
+            <div class="message-content">
+                <div class="message-bubble">
+                    上周量的，145/95这样，之前吃的是苯磺酸氨氯地平片，这几天感觉效果不太好
+                </div>
+            </div>
+        </div>
+
+        <!-- 问诊卡片 -->
+        <div class="message patient">
+            <div class="message-avatar">
+                <img src="https://i.pravatar.cc/150?img=1" alt="患者" onerror="this.src=generateAvatar(this.alt)">
+            </div>
+            <div class="message-content">
+                <div class="inquiry-card">
+                    <div class="inquiry-card-header">
+                        <span class="inquiry-card-title">图文问诊</span>
+                        <span class="inquiry-card-tag">待接诊</span>
+                    </div>
+                    <div class="inquiry-card-info">描述症状：头晕、胸口闷</div>
+                    <div class="inquiry-card-desc">请医生查看我的情况，谢谢</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 患者消息 -->
+        <div class="message patient">
+            <div class="message-avatar">
+                <img src="https://i.pravatar.cc/150?img=1" alt="患者" onerror="this.src=generateAvatar(this.alt)">
+            </div>
+            <div class="message-content">
+                <div class="message-bubble">
+                    之前血压控制得挺好的，最近工作压力大，睡眠不太好，是不是有关系？
+                </div>
+            </div>
+        </div>
+
+        <!-- 医生消息 -->
+        <div class="message doctor">
+            <div class="message-avatar">
+                <img src="https://i.pravatar.cc/150?img=68" alt="医生" onerror="this.src=generateAvatar(this.alt)">
+            </div>
+            <div class="message-content">
+                <div class="message-bubble">
+                    您分析得很对，工作压力大、睡眠不好确实会导致血压波动。我建议您：<br><br>1. 规律作息，保证7-8小时睡眠<br>2. 减少高盐高脂饮食<br>3. 适当运动放松<br><br>另外，我可以给您调整一下用药方案，您看方便吗？
+                </div>
+            </div>
+        </div>
+
+        <!-- 处方卡片 -->
+        <div class="message doctor">
+            <div class="message-avatar">
+                <img src="https://i.pravatar.cc/150?img=68" alt="医生" onerror="this.src=generateAvatar(this.alt)">
+            </div>
+            <div class="message-content">
+                <div class="prescription-card">
+                    <div class="prescription-card-header">
+                        <span class="prescription-card-title">电子处方</span>
+                        <span class="prescription-card-status">待发</span>
+                    </div>
+                    <div class="prescription-card-items">
+                        1. 苯磺酸左氨氯地平片 5mg × 1盒<br>
+                        2. 天麻素片 25mg × 2盒<br>
+                        <span style="color: #999;">用法详见处方详情</span>
+                    </div>
+                    <div class="prescription-card-action">
+                        <button class="prescription-card-btn" onclick="location.href='prescription.html'">查看处方详情</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="message-time">
+            <span>刚刚</span>
+        </div>
+    </div>
+
+    <!-- 输入区域 -->
+    <div class="chat-input-area">
+        <div class="chat-input-toolbar" id="chat-toolbar">
+            <!-- 基础功能：图片 -->
+            <div class="chat-input-tool" onclick="showToast('发送图片')">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="#666">
+                    <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
+                </svg>
+            </div>
+            <!-- 基础功能：患教资料 -->
+            <div class="chat-input-tool" onclick="showToast('选择患教资料')">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="#666">
+                    <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/>
+                </svg>
+            </div>
+            <!-- 处方功能 -->
+            <div class="chat-input-tool" onclick="location.href='prescription.html'">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="#1890ff">
+                    <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+                </svg>
+            </div>
+            <!-- 语音/视频功能区域 - 动态显示 -->
+            <div id="media-tools"></div>
+        </div>
+        <div class="chat-input-wrapper">
+            <textarea class="chat-input" id="message-input" placeholder="输入回复内容..." rows="1"></textarea>
+            <button class="chat-send-btn" onclick="sendMessage()">发送</button>
+        </div>
+    </div>
+
+    <!-- 遮罩层 -->
+    <div class="mask" id="mask" onclick="toggleQuickActions()"></div>
+
+    <!-- 快捷操作面板 -->
+    <div class="quick-actions" id="quick-actions">
+        <div class="quick-actions-close" onclick="toggleQuickActions()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="#999">
+                <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+            </svg>
+        </div>
+        <div class="quick-actions-title">快捷回复</div>
+        <div class="quick-actions-grid">
+            <div class="quick-action-item" onclick="insertTemplate('您好，请描述一下您的具体症状？')">
+                <div class="quick-action-icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="#fff">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+                    </svg>
+                </div>
+                <span class="quick-action-text">询问症状</span>
+            </div>
+            <div class="quick-action-item" onclick="insertTemplate('请问您之前有过敏史吗？')">
+                <div class="quick-action-icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="#fff">
+                        <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/>
+                    </svg>
+                </div>
+                <span class="quick-action-text">过敏史</span>
+            </div>
+            <div class="quick-action-item" onclick="insertTemplate('建议您近期清淡饮食，规律作息。')">
+                <div class="quick-action-icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="#fff">
+                        <path d="M18.06 22.99h1.66c.84 0 1.53-.64 1.63-1.46L23 5.05l-5 2v5.12c0 .6-.4 1.12-.92 1.33L9.99 17l6.07-2.5z"/>
+                    </svg>
+                </div>
+                <span class="quick-action-text">饮食建议</span>
+            </div>
+            <div class="quick-action-item" onclick="insertTemplate('您的情况我了解了，我会为您开具处方。')">
+                <div class="quick-action-icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="#fff">
+                        <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+                    </svg>
+                </div>
+                <span class="quick-action-text">开具处方</span>
+            </div>
+            <div class="quick-action-item" onclick="insertTemplate('您的问题已解答，如有其他不适请随时咨询。')">
+                <div class="quick-action-icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="#fff">
+                        <path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/>
+                    </svg>
+                </div>
+                <span class="quick-action-text">结束问诊</span>
+            </div>
+            <div class="quick-action-item" onclick="insertTemplate('您的描述不够详细，请补充说明一下具体情况？')">
+                <div class="quick-action-icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="#fff">
+                        <path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-7 12h-2v-2h2v2zm0-4h-2V6h2v4z"/>
+                    </svg>
+                </div>
+                <span class="quick-action-text">补充信息</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // 显示 Toast 提示
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2000);
+        }
+
+        // 切换快捷操作面板
+        function toggleQuickActions() {
+            const panel = document.getElementById('quick-actions');
+            const mask = document.getElementById('mask');
+            panel.classList.toggle('show');
+            mask.classList.toggle('show');
+        }
+
+        // 插入快捷模板
+        function insertTemplate(text) {
+            const input = document.getElementById('message-input');
+            input.value = text;
+            toggleQuickActions();
+            input.focus();
+        }
+
+        // 发送消息
+        function sendMessage() {
+            const input = document.getElementById('message-input');
+            const message = input.value.trim();
+            if (!message) {
+                showToast('请输入回复内容');
+                return;
+            }
+
+            const messagesContainer = document.getElementById('chat-messages');
+            const doctorAvatar = 'https://i.pravatar.cc/150?img=68';
+            const time = new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
+
+            const messageHtml = `
+                <div class="message doctor">
+                    <div class="message-avatar">
+                        <img src="${doctorAvatar}" alt="医生" onerror="this.src=generateAvatar(this.alt)">
+                    </div>
+                    <div class="message-content">
+                        <div class="message-bubble">${message}</div>
+                    </div>
+                </div>
+                <div class="message-time">
+                    <span>刚刚</span>
+                </div>
+            `;
+
+            messagesContainer.insertAdjacentHTML('beforeend', messageHtml);
+            input.value = '';
+            input.style.height = 'auto';
+
+            // 滚动到底部
+            setTimeout(() => {
+                window.scrollTo(0, document.body.scrollHeight);
+            }, 100);
+        }
+
+        // 自动调整输入框高度
+        document.getElementById('message-input').addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 100) + 'px';
+        });
+
+        // 回车发送
+        document.getElementById('message-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+
+        // 获取URL参数
+        function getUrlParam(name) {
+            const params = new URLSearchParams(window.location.search);
+            return params.get(name);
+        }
+
+        // 患者数据
+        const patientsInfo = {
+            20001: {
+                name: '张三',
+                avatar: 'https://i.pravatar.cc/150?img=1',
+                gender: '女',
+                age: 45,
+                condition: '高血压病史3年'
+            },
+            20002: {
+                name: '李四',
+                avatar: 'https://i.pravatar.cc/150?img=5',
+                gender: '男',
+                age: 38,
+                condition: '高血压病史1年'
+            },
+            20003: {
+                name: '王五',
+                avatar: 'https://i.pravatar.cc/150?img=8',
+                gender: '女',
+                age: 52,
+                condition: '冠心病史2年'
+            },
+            20004: {
+                name: '赵六',
+                avatar: 'https://i.pravatar.cc/150?img=12',
+                gender: '男',
+                age: 28,
+                condition: '糖尿病史2年'
+            },
+            20005: {
+                name: '孙七',
+                avatar: 'https://i.pravatar.cc/150?img=15',
+                gender: '男',
+                age: 55,
+                condition: '高血脂病史3年'
+            }
+        };
+
+        // 根据URL参数初始化页面
+        document.addEventListener('DOMContentLoaded', function() {
+            const patientId = getUrlParam('patientId');
+            // 优先从 URL 获取 type，备用从 sessionStorage 获取
+            const consultationType = getUrlParam('type') || sessionStorage.getItem('consultationType') || 'text';
+            
+            console.log('chat.html 初始化 - type:', consultationType, 'patientId:', patientId);
+            
+            // 保存 type 和 patientId 到 sessionStorage（用于从通话页面返回时使用）
+            if (consultationType) {
+                sessionStorage.setItem('consultationType', consultationType);
+            }
+            if (patientId) {
+                sessionStorage.setItem('patientId', patientId);
+            }
+            
+            // 渲染问诊类型对应的工具图标
+            renderMediaTools(consultationType);
+            
+            // 更新问诊卡片标签
+            updateInquiryTag(consultationType);
+            
+            if (patientId && patientsInfo[patientId]) {
+                const patient = patientsInfo[patientId];
+                // 更新页面上的患者信息
+                document.querySelector('.chat-header-name').textContent = patient.name;
+                document.querySelector('.patient-info-card .name').textContent = patient.name;
+                document.querySelector('.patient-info-card .meta').textContent = `${patient.gender} · ${patient.age}岁 · ${patient.condition}`;
+                
+                // 更新所有患者头像
+                const patientAvatar = patient.avatar;
+                document.querySelector('.patient-info-card .avatar img').src = patientAvatar;
+                document.querySelector('.patient-info-card .avatar img').alt = patient.name;
+                document.querySelector('.patient-info-card .avatar img').onerror = function() {
+                    this.src = generateAvatar(patient.name);
+                };
+                
+                // 更新聊天记录中的患者头像
+                document.querySelectorAll('.message.patient .message-avatar img').forEach(function(img) {
+                    img.src = patientAvatar;
+                    img.alt = patient.name;
+                    img.onerror = function() {
+                        this.src = generateAvatar(patient.name);
+                    };
+                });
+            }
+            
+            // 读取并显示处方状态
+            loadPrescriptionStatus(patientId);
+            
+            // 检查是否需要刷新处方状态（从处方页面返回时）
+            const needRefresh = sessionStorage.getItem('refreshPrescription');
+            if (needRefresh === 'true') {
+                sessionStorage.removeItem('refreshPrescription');
+                // 延迟刷新，确保页面已完全加载
+                setTimeout(() => {
+                    refreshPrescriptionStatus();
+                }, 100);
+            }
+        });
+        
+        // 读取处方状态
+        function loadPrescriptionStatus(patientId) {
+            if (!patientId) return;
+            
+            // 优先读取已提交的处方，其次读取草稿
+            let prescriptionData = null;
+            const prescriptionKey = `prescription_${patientId}`;
+            const draftData = localStorage.getItem(`prescription_draft_${patientId}`);
+            const submittedData = localStorage.getItem(prescriptionKey);
+            
+            // 如果有已提交的数据，优先显示
+            if (submittedData) {
+                try {
+                    const parsed = JSON.parse(submittedData);
+                    if (parsed.status === 'pending' || parsed.status === 'approved') {
+                        prescriptionData = parsed;
+                    }
+                } catch (e) {}
+            }
+            
+            // 如果没有已提交的，显示草稿
+            if (!prescriptionData && draftData) {
+                try {
+                    prescriptionData = JSON.parse(draftData);
+                } catch (e) {}
+            }
+            
+            if (prescriptionData) {
+                showPrescriptionStatusCard(prescriptionData);
+            }
+        }
+        
+        // 显示处方状态卡片
+        function showPrescriptionStatusCard(data) {
+            const card = document.getElementById('prescription-status-card');
+            if (!card) return;
+            
+            // 更新卡片样式
+            card.className = `prescription-status-card ${data.status}`;
+            
+            // 更新标题
+            document.getElementById('prescription-card-title').textContent = '电子处方';
+            
+            // 更新状态标签
+            const statusMap = {
+                'draft': '草稿',
+                'pending': '待审核',
+                'approved': '已通过',
+                'rejected': '已驳回'
+            };
+            document.getElementById('prescription-card-status').textContent = statusMap[data.status] || '未知';
+            
+            // 更新处方信息
+            document.getElementById('prescription-card-info').textContent = 
+                `处方号：${data.prescriptionNo || '待生成'}`;
+            
+            // 更新药品信息
+            const drugNames = data.drugs && data.drugs.length > 0 
+                ? data.drugs.map(d => d.name).slice(0, 3).join('、')
+                : '暂无';
+            const drugSuffix = data.drugs && data.drugs.length > 3 ? '...' : '';
+            document.getElementById('prescription-card-drugs').textContent = 
+                `药品：${drugNames}${drugSuffix}`;
+            
+            // 更新时间
+            const savedTime = data.savedAt || data.submittedAt;
+            if (savedTime) {
+                const timeStr = formatTime(savedTime);
+                document.getElementById('prescription-card-time').innerHTML = `
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
+                        <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/>
+                    </svg>
+                    ${timeStr}
+                `;
+            }
+            
+            // 显示卡片
+            card.style.display = 'block';
+            
+            // 调整聊天消息区域的 padding
+            document.querySelector('.chat-messages').style.paddingTop = '176px';
+        }
+        
+        // 格式化时间
+        function formatTime(isoString) {
+            const date = new Date(isoString);
+            const now = new Date();
+            const diff = now - date;
+            
+            if (diff < 60000) return '刚刚';
+            if (diff < 3600000) return Math.floor(diff / 60000) + '分钟前';
+            if (diff < 86400000) return Math.floor(diff / 3600000) + '小时前';
+            return date.toLocaleDateString('zh-CN');
+        }
+        
+        // 跳转到处方页面
+        function goToPrescription() {
+            const patientId = getUrlParam('patientId');
+            const inquiryId = getUrlParam('inquiryId');
+            let url = 'prescription.html';
+            if (patientId) url += `?patientId=${patientId}`;
+            if (inquiryId) url += `&inquiryId=${inquiryId}`;
+            location.href = url;
+        }
+        
+        // 刷新处方状态（从处方页面返回时调用）
+        function refreshPrescriptionStatus() {
+            const patientId = getUrlParam('patientId');
+            if (patientId) {
+                loadPrescriptionStatus(patientId);
+            }
+        }
+        
+        // 根据问诊类型渲染媒体工具图标
+        function renderMediaTools(type) {
+            const container = document.getElementById('media-tools');
+            let html = '';
+            
+            // 图文问诊：无额外图标（保持原样）
+            
+            // 语音问诊：显示语音图标
+            if (type === 'voice' || type === 'video') {
+                html += `
+                    <div class="chat-input-tool" onclick="startVoiceCall()" title="语音通话">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="#52c41a">
+                            <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5-3c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+                        </svg>
+                    </div>
+                `;
+            }
+            
+            // 视频问诊：再显示视频图标
+            if (type === 'video') {
+                html += `
+                    <div class="chat-input-tool" onclick="startVideoCall()" title="视频通话">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="#1890ff">
+                            <path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/>
+                        </svg>
+                    </div>
+                `;
+            }
+            
+            container.innerHTML = html;
+        }
+        
+        // 更新问诊卡片标签
+        function updateInquiryTag(type) {
+            const tags = document.querySelectorAll('.inquiry-card-tag');
+            const titles = document.querySelectorAll('.inquiry-card-title');
+            
+            const typeNames = {
+                'text': '图文问诊',
+                'voice': '语音问诊',
+                'video': '视频问诊'
+            };
+            
+            tags.forEach(tag => {
+                tag.textContent = typeNames[type] || '图文问诊';
+            });
+        }
+        
+        // 发起语音通话
+        function startVoiceCall() {
+            const confirmed = confirm('确定发起语音通话？');
+            if (confirmed) {
+                showToast('正在连接语音通话...');
+                const patientId = getUrlParam('patientId') || '';
+                const consultationType = getUrlParam('type') || 'video'; // 保留原始问诊类型
+                setTimeout(() => {
+                    location.href = `voice-call.html?patientId=${patientId}&type=${consultationType}`;
+                }, 1000);
+            }
+        }
+        
+        // 发起视频通话
+        function startVideoCall() {
+            const confirmed = confirm('确定发起视频通话？');
+            if (confirmed) {
+                showToast('正在连接视频通话...');
+                const patientId = getUrlParam('patientId') || '';
+                const consultationType = getUrlParam('type') || 'video'; // 保留原始问诊类型
+                setTimeout(() => {
+                    location.href = `video-consultation.html?patientId=${patientId}&type=${consultationType}`;
+                }, 1000);
+            }
+        }
+    </script>
+</body>
+</html>

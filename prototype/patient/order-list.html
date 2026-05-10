@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>我的订单 - 在线问诊平台</title>
+    <link rel="stylesheet" href="../css/common.css">
+    <link rel="stylesheet" href="../css/patient.css">
+</head>
+<body>
+    <div class="page">
+        <!-- 导航栏 -->
+        <div class="navbar">
+            <div class="navbar-left">
+                <a href="home.html" class="navbar-icon">
+                    <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                        <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+                    </svg>
+                </a>
+            </div>
+            <div class="navbar-title">我的订单</div>
+            <div class="navbar-right"></div>
+        </div>
+
+        <!-- 标签页 -->
+        <div class="tabs" style="position: fixed; top: var(--nav-height); left: 0; right: 0; z-index: 10;">
+            <div class="tab active" data-status="">全部</div>
+            <div class="tab" data-status="1">待支付</div>
+            <div class="tab" data-status="2,3,4">待收货</div>
+            <div class="tab" data-status="5">已完成</div>
+        </div>
+
+        <!-- 订单列表 -->
+        <div class="content" id="order-list" style="padding-top: calc(var(--nav-height) + 48px);">
+            <!-- 动态渲染 -->
+        </div>
+
+        <!-- 底部导航 -->
+        <div class="tab-bar">
+            <div class="tab-item" onclick="goTo('home.html')">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                    <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+                </svg>
+                <span>首页</span>
+            </div>
+            <div class="tab-item" onclick="goTo('doctor-list.html')">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                    <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+                </svg>
+                <span>问诊</span>
+            </div>
+            <div class="tab-item active">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                    <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+                </svg>
+                <span>订单</span>
+            </div>
+            <div class="tab-item" onclick="goTo('profile.html')">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                    <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                </svg>
+                <span>我的</span>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/mock-data.js"></script>
+    <script>
+        // 模拟订单数据
+        const orders = [
+            {
+                id: 70001,
+                no: 'ORD202605100000001',
+                type: 2,
+                typeName: '药品订单',
+                items: [
+                    { name: '硝苯地平缓释片', spec: '20mg×30片', quantity: 2, price: 35.00, image: 'https://via.placeholder.com/60x60/E6F7FF/1890FF?text=药' },
+                    { name: '缬沙坦胶囊', spec: '80mg×7粒', quantity: 1, price: 40.00, image: 'https://via.placeholder.com/60x60/E6F7FF/1890FF?text=药' }
+                ],
+                totalAmount: 110.00,
+                actualAmount: 100.00,
+                status: 2,
+                statusName: '待发货',
+                statusClass: 'pending',
+                createdAt: '2026-05-10 12:00'
+            },
+            {
+                id: 70002,
+                no: 'ORD202605080000001',
+                type: 2,
+                typeName: '药品订单',
+                items: [
+                    { name: '奥美拉唑肠溶胶囊', spec: '20mg×14粒', quantity: 2, price: 28.00, image: 'https://via.placeholder.com/60x60/E6F7FF/1890FF?text=药' }
+                ],
+                totalAmount: 56.00,
+                actualAmount: 56.00,
+                status: 5,
+                statusName: '已完成',
+                statusClass: 'success',
+                createdAt: '2026-05-08 15:30'
+            },
+            {
+                id: 70003,
+                no: 'ORD202605100000002',
+                type: 2,
+                typeName: '药品订单',
+                items: [
+                    { name: '复方氨酚烷胺片', spec: '12片/盒', quantity: 1, price: 12.00, image: 'https://via.placeholder.com/60x60/E6F7FF/1890FF?text=药' }
+                ],
+                totalAmount: 12.00,
+                actualAmount: 12.00,
+                status: 1,
+                statusName: '待支付',
+                statusClass: 'pending',
+                createdAt: '2026-05-10 16:00',
+                expireTime: '23:59:59'
+            }
+        ];
+
+        let currentStatus = '';
+
+        // 渲染订单列表
+        function renderOrders() {
+            const container = document.getElementById('order-list');
+            let list = orders;
+            
+            if (currentStatus) {
+                const statusArr = currentStatus.split(',').map(s => parseInt(s));
+                list = orders.filter(o => statusArr.includes(o.status));
+            }
+
+            if (list.length === 0) {
+                container.innerHTML = `
+                    <div class="empty">
+                        <div class="empty-icon">
+                            <svg viewBox="0 0 24 24" width="120" height="120" fill="currentColor">
+                                <path d="M15.55 13c.75 0 1.41-.41 1.75-1.03l3.58-6.47c.37-.66-.11-1.48-.87-1.48H5.21l-.94-2H1v2h2l3.6 7.59-1.35 2.44C4.52 15.37 5.48 17 7 17h12v-2H7l1.1-2h7.45zm-.75 2h-4.1l1.19-2H12l.87 2H14.8l-1.9 3.4-1.35-2.4z"/>
+                            </svg>
+                        </div>
+                        <div class="empty-title">暂无订单</div>
+                        <div class="empty-desc">快去选购药品吧</div>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = list.map(order => `
+                <div class="order-card" onclick="goTo('order-detail.html?id=${order.id}')">
+                    <div class="order-card-header">
+                        <div class="order-card-shop">
+                            <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+                                <path d="M15.55 13c.75 0 1.41-.41 1.75-1.03l3.58-6.47c.37-.66-.11-1.48-.87-1.48H5.21l-.94-2H1v2h2l3.6 7.59-1.35 2.44C4.52 15.37 5.48 17 7 17h12v-2H7l1.1-2h7.45z"/>
+                            </svg>
+                            <span>${order.typeName}</span>
+                        </div>
+                        <span class="order-card-status ${order.statusClass}">${order.statusName}</span>
+                    </div>
+                    <div class="order-card-body">
+                        ${order.items.map(item => `
+                            <div class="order-card-item">
+                                <div class="order-card-item-img">
+                                    <img src="${item.image}" alt="">
+                                </div>
+                                <div class="order-card-item-info">
+                                    <div class="order-card-item-name">${item.name}</div>
+                                    <div class="order-card-item-spec">${item.spec}</div>
+                                </div>
+                                <div class="order-card-item-price">
+                                    <div class="order-card-item-amount">¥${item.price.toFixed(2)}</div>
+                                    <div class="order-card-item-unit">×${item.quantity}</div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div class="order-card-footer">
+                        <div class="order-card-total">
+                            共${order.items.reduce((sum, item) => sum + item.quantity, 0)}件商品，
+                            合计<strong>¥${order.actualAmount.toFixed(2)}</strong>
+                        </div>
+                        ${order.status === 1 ? `
+                            <div class="order-card-actions">
+                                <button class="btn btn-sm btn-default" onclick="event.stopPropagation(); cancelOrder(${order.id})">取消</button>
+                                <button class="btn btn-sm btn-primary" onclick="event.stopPropagation(); payOrder(${order.id})">去支付</button>
+                            </div>
+                        ` : ''}
+                        ${order.status === 4 ? `
+                            <div class="order-card-actions">
+                                <button class="btn btn-sm btn-primary" onclick="event.stopPropagation(); confirmReceive(${order.id})">确认收货</button>
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 取消订单
+        function cancelOrder(id) {
+            if (confirm('确定要取消该订单吗？')) {
+                showToast('订单已取消');
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1000);
+            }
+        }
+
+        // 去支付
+        function payOrder(id) {
+            showToast('正在跳转支付...');
+            setTimeout(() => {
+                showToast('支付成功');
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1000);
+            }, 1500);
+        }
+
+        // 确认收货
+        function confirmReceive(id) {
+            if (confirm('确认已收到货物？')) {
+                showToast('已确认收货');
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1000);
+            }
+        }
+
+        // 标签页切换
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                currentStatus = this.dataset.status;
+                renderOrders();
+            });
+        });
+
+        // 初始化
+        renderOrders();
+    </script>
+</body>
+</html>

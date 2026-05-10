@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>语音问诊 - 医生端</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            color: #fff;
+        }
+
+        /* 顶部状态 */
+        .call-header {
+            padding: 48px 24px 24px;
+            text-align: center;
+        }
+
+        .call-status {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 8px;
+        }
+
+        .call-time {
+            font-size: 48px;
+            font-weight: 300;
+            letter-spacing: 2px;
+        }
+
+        /* 通话状态提示 */
+        .call-state {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.6);
+            margin-top: 16px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        /* 患者信息 */
+        .patient-info {
+            text-align: center;
+            padding: 32px 0;
+        }
+
+        .patient-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #52c41a, #95de64);
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            font-weight: 500;
+            box-shadow: 0 8px 32px rgba(82, 196, 26, 0.3);
+        }
+
+        .patient-avatar img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .patient-name {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .patient-meta {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        /* 来电接听界面 */
+        .incoming-call {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, #52c41a 0%, #95de64 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 200;
+        }
+
+        .incoming-call.hidden {
+            display: none;
+        }
+
+        .incoming-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            color: #52c41a;
+            margin-bottom: 24px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+
+        .incoming-name {
+            font-size: 24px;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 8px;
+        }
+
+        .incoming-type {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 48px;
+        }
+
+        .incoming-time {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 80px;
+        }
+
+        .incoming-actions {
+            display: flex;
+            gap: 80px;
+        }
+
+        .incoming-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .incoming-btn-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .incoming-btn-icon:active {
+            transform: scale(0.95);
+        }
+
+        .incoming-btn-icon.reject {
+            background: #ff4d4f;
+            color: #fff;
+        }
+
+        .incoming-btn-icon.accept {
+            background: #fff;
+            color: #52c41a;
+        }
+
+        .incoming-btn-icon svg {
+            width: 28px;
+            height: 28px;
+        }
+
+        .incoming-btn-label {
+            font-size: 12px;
+            color: #fff;
+            margin-top: 8px;
+        }
+
+        /* 波形动画 */
+        .waveform {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 4px;
+            height: 40px;
+            margin: 24px 0;
+        }
+
+        .wave-bar {
+            width: 4px;
+            height: 20px;
+            background: linear-gradient(180deg, #52c41a, #95de64);
+            border-radius: 2px;
+            animation: wave 1s ease-in-out infinite;
+        }
+
+        .wave-bar:nth-child(1) { animation-delay: 0s; }
+        .wave-bar:nth-child(2) { animation-delay: 0.1s; }
+        .wave-bar:nth-child(3) { animation-delay: 0.2s; }
+        .wave-bar:nth-child(4) { animation-delay: 0.3s; }
+        .wave-bar:nth-child(5) { animation-delay: 0.4s; }
+        .wave-bar:nth-child(6) { animation-delay: 0.5s; }
+        .wave-bar:nth-child(7) { animation-delay: 0.6s; }
+
+        @keyframes wave {
+            0%, 100% { height: 10px; }
+            50% { height: 30px; }
+        }
+
+        .waveform.paused .wave-bar {
+            animation-play-state: paused;
+            height: 4px;
+        }
+
+        /* 底部控制栏 */
+        .call-controls {
+            margin-top: auto;
+            padding: 32px 24px 60px;
+        }
+
+        .control-row {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+        }
+
+        .control-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .control-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #fff;
+        }
+
+        .control-icon:active {
+            transform: scale(0.95);
+        }
+
+        .control-icon svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        .control-icon.active {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .control-icon.end {
+            width: 64px;
+            height: 64px;
+            background: #ff4d4f;
+        }
+
+        .control-icon.end svg {
+            width: 28px;
+            height: 28px;
+        }
+
+        .control-label {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.7);
+            margin-top: 8px;
+        }
+
+        .control-label.end {
+            color: #ff4d4f;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            top: 70px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.75);
+            color: #fff;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .toast.show {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <!-- 来电接听界面 -->
+    <div class="incoming-call" id="incomingCall">
+        <div class="incoming-avatar" id="incomingAvatar">张</div>
+        <div class="incoming-name" id="incomingName">张三</div>
+        <div class="incoming-type">语音问诊</div>
+        <div class="incoming-time">正在呼入...</div>
+        <div class="incoming-actions">
+            <div class="incoming-btn" onclick="rejectCall()">
+                <div class="incoming-btn-icon reject">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 9c-1.6 0-3.15.25-4.6.72v3.1c0 .39-.23.74-.56.9-.98.49-1.87 1.12-2.66 1.85-.18.18-.43.28-.7.28-.28 0-.53-.11-.71-.29L.29 13.08c-.18-.17-.29-.42-.29-.7 0-.28.11-.53.29-.71C3.34 8.78 7.46 7 12 7s8.66 1.78 11.71 4.67c.18.18.29.43.29.71 0 .28-.11.53-.29.71l-2.48 2.48c-.18.18-.43.29-.71.29-.27 0-.52-.11-.7-.28-.79-.74-1.69-1.36-2.67-1.85-.33-.16-.56-.5-.56-.9v-3.1C15.15 9.25 13.6 9 12 9z"/>
+                    </svg>
+                </div>
+                <span class="incoming-btn-label">拒绝</span>
+            </div>
+            <div class="incoming-btn" onclick="acceptCall()">
+                <div class="incoming-btn-icon accept">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M20.01 15.38c-1.23 0-2.42-.2-3.53-.56a.977.977 0 0 0-1.01.24l-1.57 1.97c-2.83-1.35-5.48-3.9-6.89-6.83l1.95-1.66c.27-.28.35-.67.24-1.02-.37-1.11-.56-2.3-.56-3.53 0-.54-.45-.99-.99-.99H4.19C3.65 3 3 3.24 3 3.99 3 13.28 10.73 21 20.01 21c.71 0 .99-.45.99-.99v-3.45c0-.54-.45-.99-.99-.99z"/>
+                    </svg>
+                </div>
+                <span class="incoming-btn-label">接听</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 通话界面 -->
+    <div class="call-page" id="callPage">
+        <!-- 顶部状态 -->
+        <div class="call-header">
+            <div class="call-status">语音通话中</div>
+            <div class="call-time" id="callTime">00:00</div>
+            <div class="call-state" id="callState">通话连接中...</div>
+        </div>
+
+        <!-- 患者信息 -->
+        <div class="patient-info">
+            <div class="patient-avatar" id="patientAvatar">
+                <img src="https://i.pravatar.cc/150?img=1" alt="张三" onerror="this.style.display='none'; this.parentElement.textContent='张'">
+            </div>
+            <div class="patient-name" id="patientName">张三</div>
+            <div class="patient-meta" id="patientMeta">138****1234 · 男 45岁</div>
+        </div>
+
+        <!-- 波形动画 -->
+        <div class="waveform" id="waveform">
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+        </div>
+
+        <!-- 底部控制栏 -->
+        <div class="call-controls">
+            <div class="control-row">
+                <div class="control-btn" onclick="toggleMute()">
+                    <div class="control-icon" id="muteBtn">
+                        <svg viewBox="0 0 24 24" fill="currentColor" id="muteIcon">
+                            <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.91-3c-.49 0-.9.36-.98.85C16.52 14.2 14.47 16 12 16s-4.52-1.8-4.93-4.15c-.08-.49-.49-.85-.98-.85-.61 0-1.09.54-1 1.14.49 3 2.89 5.35 5.91 5.78V20c0 .55.45 1 1 1s1-.45 1-1v-2.08c3.02-.43 5.42-2.78 5.91-5.78.1-.6-.39-1.14-1-1.14z"/>
+                        </svg>
+                    </div>
+                    <span class="control-label" id="muteLabel">静音</span>
+                </div>
+                <div class="control-btn" onclick="toggleSpeaker()">
+                    <div class="control-icon" id="speakerBtn">
+                        <svg viewBox="0 0 24 24" fill="currentColor" id="speakerIcon">
+                            <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+                        </svg>
+                    </div>
+                    <span class="control-label" id="speakerLabel">扬声器</span>
+                </div>
+                <div class="control-btn" onclick="endCall()">
+                    <div class="control-icon end">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 9c-1.6 0-3.15.25-4.6.72v3.1c0 .39-.23.74-.56.9-.98.49-1.87 1.12-2.66 1.85-.18.18-.43.28-.7.28-.28 0-.53-.11-.71-.29L.29 13.08c-.18-.17-.29-.42-.29-.7 0-.28.11-.53.29-.71C3.34 8.78 7.46 7 12 7s8.66 1.78 11.71 4.67c.18.18.29.43.29.71 0 .28-.11.53-.29.71l-2.48 2.48c-.18.18-.43.29-.71.29-.27 0-.52-.11-.7-.28-.79-.74-1.69-1.36-2.67-1.85-.33-.16-.56-.5-.56-.9v-3.1C15.15 9.25 13.6 9 12 9z"/>
+                        </svg>
+                    </div>
+                    <span class="control-label end">结束</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // 获取URL参数
+        function getUrlParam(name) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(name);
+        }
+
+        // 状态变量
+        let isMuted = false;
+        let isSpeakerOn = false;
+        let callStartTime = null;
+        let callTimer = null;
+        let isCallActive = false;
+
+        // 初始化
+        const patientId = getUrlParam('patientId');
+        const patientName = getUrlParam('name') || '张三';
+        const patientPhone = getUrlParam('phone') || '138****1234';
+        const patientAge = getUrlParam('age') || '45';
+        const patientGender = getUrlParam('gender') || '男';
+
+        document.getElementById('incomingName').textContent = patientName;
+        document.getElementById('incomingAvatar').textContent = patientName.charAt(0);
+        document.getElementById('patientName').textContent = patientName;
+        document.getElementById('patientMeta').textContent = `${patientPhone} · ${patientGender} ${patientAge}岁`;
+
+        // 显示Toast
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2000);
+        }
+
+        // 获取URL参数
+        function getUrlParam(name) {
+            const params = new URLSearchParams(window.location.search);
+            return params.get(name);
+        }
+
+        // 获取返回chat页面的URL
+        function getBackToChatUrl() {
+            // 优先从 URL 参数获取 patientId 和 type
+            const patientId = getUrlParam('patientId') || sessionStorage.getItem('patientId') || '';
+            // 保留原始 type，不固定为 voice
+            const type = getUrlParam('type') || sessionStorage.getItem('consultationType') || 'voice';
+            const url = `chat.html?patientId=${patientId}&type=${type}`;
+            console.log('返回 chat URL:', url);
+            return url;
+        }
+
+        // 进入页面时保存 patientId 和 type 到 sessionStorage
+        const urlPatientId = getUrlParam('patientId');
+        if (urlPatientId) {
+            sessionStorage.setItem('patientId', urlPatientId);
+        }
+        const urlType = getUrlParam('type');
+        if (urlType) {
+            sessionStorage.setItem('consultationType', urlType);
+        }
+
+        // 拒绝来电
+        function rejectCall() {
+            showToast('已拒绝');
+            setTimeout(() => {
+                window.location.href = getBackToChatUrl();
+            }, 1000);
+        }
+
+        // 接听来电
+        function acceptCall() {
+            document.getElementById('incomingCall').classList.add('hidden');
+            startCall();
+        }
+
+        // 开始通话
+        function startCall() {
+            isCallActive = true;
+            document.getElementById('callState').textContent = '通话中...';
+            callStartTime = Date.now();
+            
+            // 开始计时
+            callTimer = setInterval(() => {
+                const elapsed = Math.floor((Date.now() - callStartTime) / 1000);
+                const minutes = Math.floor(elapsed / 60).toString().padStart(2, '0');
+                const seconds = (elapsed % 60).toString().padStart(2, '0');
+                document.getElementById('callTime').textContent = `${minutes}:${seconds}`;
+            }, 1000);
+        }
+
+        // 切换静音
+        function toggleMute() {
+            isMuted = !isMuted;
+            const muteBtn = document.getElementById('muteBtn');
+            const muteIcon = document.getElementById('muteIcon');
+            const muteLabel = document.getElementById('muteLabel');
+            const waveform = document.getElementById('waveform');
+            
+            if (isMuted) {
+                muteBtn.classList.add('active');
+                muteIcon.innerHTML = '<path d="M19 11h-1.7c0 .74-.16 1.43-.43 2.05l1.23 1.23c.56-.98.9-2.09.9-3.28zm-4.02.17c0-.06.02-.11.02-.17V5c0-1.66-1.34-3-3-3S9 3.34 9 5v.18l5.98 5.99zM4.27 3L3 4.27l6.01 6.01V11c0 1.66 1.33 3 2.99 3 .22 0 .44-.03.65-.08l1.66 1.66c-.71.33-1.5.52-2.31.52-2.76 0-5.3-2.1-5.3-5.1H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c.91-.13 1.77-.45 2.54-.9L19.73 21 21 19.73 4.27 3z"/>';
+                muteLabel.textContent = '取消静音';
+                waveform.classList.add('paused');
+                showToast('已静音');
+            } else {
+                muteBtn.classList.remove('active');
+                muteIcon.innerHTML = '<path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.91-3c-.49 0-.9.36-.98.85C16.52 14.2 14.47 16 12 16s-4.52-1.8-4.93-4.15c-.08-.49-.49-.85-.98-.85-.61 0-1.09.54-1 1.14.49 3 2.89 5.35 5.91 5.78V20c0 .55.45 1 1 1s1-.45 1-1v-2.08c3.02-.43 5.42-2.78 5.91-5.78.1-.6-.39-1.14-1-1.14z"/>';
+                muteLabel.textContent = '静音';
+                waveform.classList.remove('paused');
+                showToast('已取消静音');
+            }
+        }
+
+        // 切换扬声器
+        function toggleSpeaker() {
+            isSpeakerOn = !isSpeakerOn;
+            const speakerBtn = document.getElementById('speakerBtn');
+            const speakerLabel = document.getElementById('speakerLabel');
+            
+            if (isSpeakerOn) {
+                speakerBtn.classList.add('active');
+                speakerLabel.textContent = '听筒';
+                showToast('已切换到扬声器');
+            } else {
+                speakerBtn.classList.remove('active');
+                speakerLabel.textContent = '扬声器';
+                showToast('已切换到听筒');
+            }
+        }
+
+        // 结束通话
+        function endCall() {
+            if (callTimer) {
+                clearInterval(callTimer);
+            }
+            showToast('通话已结束');
+            setTimeout(() => {
+                window.location.href = getBackToChatUrl();
+            }, 1000);
+        }
+
+        // 自动开始（模拟医生主动发起的语音问诊）
+        // 如果URL中有autoStart=1，则自动开始通话
+        if (getUrlParam('autoStart') === '1') {
+            document.getElementById('incomingCall').classList.add('hidden');
+            startCall();
+        }
+    </script>
+</body>
+</html>

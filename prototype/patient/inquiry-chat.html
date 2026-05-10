@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>在线问诊 - 在线问诊平台</title>
+    <link rel="stylesheet" href="../css/common.css">
+    <link rel="stylesheet" href="../css/patient.css">
+    <style>
+        .chat-page {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            background: var(--bg-page);
+        }
+
+        .chat-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+        }
+
+        .chat-header-bar {
+            height: var(--nav-height);
+            background: var(--primary-color);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            padding: 0 var(--spacing-md);
+        }
+
+        .chat-header-left, .chat-header-right {
+            width: 60px;
+        }
+
+        .chat-header-center {
+            flex: 1;
+            text-align: center;
+        }
+
+        .chat-header-title {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .chat-header-subtitle {
+            font-size: 11px;
+            opacity: 0.8;
+        }
+
+        .chat-header-btn {
+            color: #fff;
+            font-size: 20px;
+        }
+
+        /* 问诊状态栏 */
+        .chat-status-bar {
+            background: #FFF9E6;
+            padding: 8px 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: var(--warning-color);
+        }
+
+        /* 病情卡片 */
+        .disease-card {
+            background: var(--bg-color);
+            margin: calc(var(--nav-height) + 40px) 16px 0;
+            border-radius: var(--radius-md);
+            padding: 12px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .disease-card-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .disease-card-content {
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .disease-card-images {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .disease-card-images img {
+            width: 60px;
+            height: 60px;
+            border-radius: var(--radius-sm);
+            object-fit: cover;
+        }
+
+        /* 消息区域 */
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            padding-bottom: 140px;
+        }
+
+        .chat-time-divider {
+            text-align: center;
+            margin: 16px 0;
+        }
+
+        .chat-time-divider span {
+            background: var(--bg-secondary);
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 11px;
+            color: var(--text-disabled);
+        }
+
+        .chat-message {
+            display: flex;
+            margin-bottom: 16px;
+        }
+
+        .chat-message.patient {
+            flex-direction: row-reverse;
+        }
+
+        .chat-message-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: var(--radius-full);
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .chat-message-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .chat-message-content {
+            max-width: 75%;
+            margin: 0 8px;
+        }
+
+        .chat-message-bubble {
+            padding: 10px 14px;
+            border-radius: var(--radius-md);
+            font-size: 14px;
+            line-height: 1.5;
+            word-break: break-word;
+        }
+
+        .chat-message.patient .chat-message-bubble {
+            background: var(--primary-color);
+            color: #fff;
+        }
+
+        .chat-message.doctor .chat-message-bubble {
+            background: var(--bg-color);
+            color: var(--text-primary);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .chat-message-time {
+            font-size: 10px;
+            color: var(--text-disabled);
+            margin-top: 4px;
+            text-align: center;
+        }
+
+        .chat-message.patient .chat-message-time {
+            text-align: right;
+        }
+
+        .chat-message-image {
+            max-width: 200px;
+            border-radius: var(--radius-md);
+        }
+
+        /* 快捷回复 */
+        .quick-reply {
+            display: flex;
+            gap: 8px;
+            padding: 8px 16px;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .quick-reply::-webkit-scrollbar {
+            display: none;
+        }
+
+        .quick-reply-tag {
+            padding: 6px 12px;
+            background: var(--primary-bg);
+            color: var(--primary-color);
+            border-radius: var(--radius-full);
+            font-size: 12px;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        /* 输入区域 */
+        .chat-input-area {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--bg-color);
+            border-top: 1px solid var(--bg-secondary);
+            z-index: 100;
+            padding: 8px 16px;
+            padding-bottom: calc(8px + 34px);
+        }
+
+        .chat-input-tools {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 8px;
+        }
+
+        .chat-input-tool {
+            font-size: 22px;
+            color: var(--text-secondary);
+            padding: 4px;
+        }
+
+        .chat-input-tool:active {
+            color: var(--primary-color);
+        }
+
+        .chat-input-wrapper {
+            display: flex;
+            gap: 8px;
+            align-items: flex-end;
+        }
+
+        .chat-input {
+            flex: 1;
+            min-height: 36px;
+            max-height: 100px;
+            padding: 8px 12px;
+            background: var(--bg-secondary);
+            border-radius: 18px;
+            resize: none;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .chat-send-btn {
+            width: 56px;
+            height: 36px;
+            background: var(--primary-color);
+            color: #fff;
+            border-radius: 18px;
+            font-size: 14px;
+            font-weight: 500;
+            flex-shrink: 0;
+        }
+
+        .chat-send-btn:disabled {
+            background: var(--text-disabled);
+        }
+
+        /* 底部操作按钮 */
+        .chat-actions {
+            position: fixed;
+            bottom: calc(120px + 34px);
+            right: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            z-index: 99;
+        }
+
+        .chat-action-btn {
+            width: 48px;
+            height: 48px;
+            border-radius: var(--radius-full);
+            background: var(--bg-color);
+            box-shadow: var(--shadow-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: var(--primary-color);
+        }
+
+        .chat-action-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* 结束问诊确认 */
+        .end-inquiry-bar {
+            position: fixed;
+            top: var(--nav-height);
+            left: 0;
+            right: 0;
+            background: linear-gradient(90deg, var(--success-color), #73D13D);
+            color: #fff;
+            padding: 8px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 99;
+        }
+
+        .end-inquiry-bar-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+        }
+
+        .end-inquiry-bar .btn {
+            padding: 4px 12px;
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+            border-radius: var(--radius-full);
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-page">
+        <!-- 导航栏 -->
+        <div class="chat-header">
+            <div class="chat-header-bar">
+                <div class="chat-header-left">
+                    <a href="home.html" class="chat-header-btn">
+                        <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                            <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+                        </svg>
+                    </a>
+                </div>
+                <div class="chat-header-center">
+                    <div class="chat-header-title" id="doctor-name">王医生</div>
+                    <div class="chat-header-subtitle">
+                        <span id="inquiry-status">问诊中</span> · 
+                        <span id="inquiry-time">00:00</span>
+                    </div>
+                </div>
+                <div class="chat-header-right" style="text-align: right;">
+                    <a href="#" class="chat-header-btn">
+                        <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                            <path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- 结束问诊提示栏 -->
+        <div class="end-inquiry-bar" id="end-inquiry-bar" style="display: none;">
+            <div class="end-inquiry-bar-left">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                    <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                </svg>
+                <span>医生已回复，请查看</span>
+            </div>
+        </div>
+
+        <!-- 病情卡片 -->
+        <div class="disease-card">
+            <div class="disease-card-header">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
+                    <path d="M11 7h2v2h-2zm0 4h2v6h-2zm1-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
+                </svg>
+                <span>病情描述</span>
+            </div>
+            <div class="disease-card-content" id="disease-description">
+                最近经常头疼，已经持续一周，伴有失眠症状。
+            </div>
+            <div class="disease-card-images">
+                <img src="https://via.placeholder.com/60x60/E6F7FF/1890FF?text=报告" alt="">
+            </div>
+        </div>
+
+        <!-- 消息列表 -->
+        <div class="chat-messages" id="chat-messages">
+            <!-- 动态渲染 -->
+        </div>
+
+        <!-- 快捷回复 -->
+        <div class="quick-reply" id="quick-reply" style="display: none;">
+            <span class="quick-reply-tag" onclick="sendQuickReply('头疼加剧')">头疼加剧</span>
+            <span class="quick-reply-tag" onclick="sendQuickReply('失眠严重')">失眠严重</span>
+            <span class="quick-reply-tag" onclick="sendQuickReply('血压偏高')">血压偏高</span>
+            <span class="quick-reply-tag" onclick="sendQuickReply('暂无其他症状')">暂无其他症状</span>
+        </div>
+
+        <!-- 输入区域 -->
+        <div class="chat-input-area">
+            <div class="chat-input-tools">
+                <span class="chat-input-tool" onclick="toggleQuickReply()">
+                    <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                    </svg>
+                </span>
+                <span class="chat-input-tool" onclick="showToast('图片上传开发中')">
+                    <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
+                        <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
+                    </svg>
+                </span>
+                <span class="chat-input-tool" onclick="showToast('表情开发中')">
+                    <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
+                        <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm3.5-9c.83 0 1.5-.67 1.5-1.5S16.33 8 15.5 8 14 8.67 14 9.5s.67 1.5 1.5 1.5zm-7 0c.83 0 1.5-.67 1.5-1.5S9.33 8 8.5 8 7 8.67 7 9.5 7.67 11 8.5 11zm3.5 6.5c2.33 0 4.31-1.46 5.11-3.5H6.89c.8 2.04 2.78 3.5 5.11 3.5z"/>
+                    </svg>
+                </span>
+            </div>
+            <div class="chat-input-wrapper">
+                <textarea class="chat-input" id="message-input" placeholder="请输入消息..." rows="1"></textarea>
+                <button class="chat-send-btn" id="send-btn" onclick="sendMessage()">发送</button>
+            </div>
+        </div>
+
+        <!-- 底部操作按钮 -->
+        <div class="chat-actions">
+            <div class="chat-action-btn" onclick="endInquiry()">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                    <path d="M12 9c-1.6 0-3.15.25-4.6.72v3.1c0 .39-.23.74-.56.9-.98.49-1.87 1.12-2.66 1.85-.18.18-.43.28-.7.28-.28 0-.53-.11-.71-.29L.29 13.08c-.18-.17-.29-.42-.29-.7 0-.28.11-.53.29-.71C3.34 8.78 7.46 7 12 7s8.66 1.78 11.71 4.67c.18.18.29.43.29.71 0 .28-.11.53-.29.71l-2.48 2.48c-.18.18-.43.29-.71.29-.27 0-.52-.11-.7-.28-.79-.74-1.69-1.36-2.67-1.85-.33-.16-.56-.5-.56-.9v-3.1C15.15 9.25 13.6 9 12 9z"/>
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/mock-data.js"></script>
+    <script>
+        // 获取参数
+        const params = getUrlParams();
+        const doctorId = parseInt(params.doctorId) || 1001;
+        const inquiryType = parseInt(params.type) || 1;
+        const price = parseFloat(params.price) || 30;
+
+        // 获取医生信息
+        const doctor = DOCTORS.find(d => d.id === doctorId) || DOCTORS[0];
+        document.getElementById('doctor-name').textContent = doctor.name + ' ' + doctor.title;
+
+        // 获取当前用户
+        const currentUser = getCurrentUser() || {
+            userId: 10001,
+            nickname: '我',
+            avatar: 'https://i.pravatar.cc/150?img=70'
+        };
+
+        // 消息列表
+        let messages = [
+            {
+                id: 1,
+                type: 'patient',
+                avatar: currentUser.avatar,
+                content: '医生你好，我最近总是头疼，已经持续一周了，伴有失眠症状。',
+                time: '10:00'
+            },
+            {
+                id: 2,
+                type: 'doctor',
+                avatar: doctor.avatar,
+                content: '您好！我是王医生，看到您的描述了。从什么时候开始头疼的？有没有其他伴随症状？',
+                time: '10:02'
+            },
+            {
+                id: 3,
+                type: 'patient',
+                avatar: currentUser.avatar,
+                content: '大概一周前开始的，主要是太阳穴周围疼，有时候会头晕。',
+                time: '10:05'
+            },
+            {
+                id: 4,
+                type: 'doctor',
+                avatar: doctor.avatar,
+                content: '请问您平时血压情况怎么样？有没有量过血压？近期压力大吗？睡眠和饮食规律吗？',
+                time: '10:08'
+            },
+            {
+                id: 5,
+                type: 'patient',
+                avatar: currentUser.avatar,
+                content: '我上周体检血压有点偏高，其他都正常。工作压力确实挺大的，经常加班。',
+                time: '10:10'
+            }
+        ];
+
+        // 渲染消息列表
+        function renderMessages() {
+            const container = document.getElementById('chat-messages');
+            
+            container.innerHTML = messages.map(msg => `
+                <div class="chat-message ${msg.type}">
+                    <div class="chat-message-avatar">
+                        <img src="${msg.avatar}" alt="">
+                    </div>
+                    <div class="chat-message-content">
+                        <div class="chat-message-bubble">${msg.content}</div>
+                        <div class="chat-message-time">${msg.time}</div>
+                    </div>
+                </div>
+            `).join('');
+
+            // 滚动到底部
+            container.scrollTop = container.scrollHeight;
+        }
+
+        // 发送消息
+        function sendMessage() {
+            const input = document.getElementById('message-input');
+            const content = input.value.trim();
+            
+            if (!content) return;
+
+            const now = new Date();
+            const time = now.getHours().toString().padStart(2, '0') + ':' + 
+                        now.getMinutes().toString().padStart(2, '0');
+
+            // 添加用户消息
+            messages.push({
+                id: messages.length + 1,
+                type: 'patient',
+                avatar: currentUser.avatar,
+                content: content,
+                time: time
+            });
+
+            input.value = '';
+            renderMessages();
+
+            // 模拟医生回复
+            setTimeout(() => {
+                const replies = [
+                    '好的，我了解了。请问您现在有服用什么药物吗？',
+                    '根据您描述的情况，建议您先做个血压监测。',
+                    '您可以先口服布洛芬缓解头疼，同时注意休息。',
+                    '建议您尽快到医院做个详细检查，排除其他疾病。'
+                ];
+                const reply = replies[Math.floor(Math.random() * replies.length)];
+                
+                const replyTime = new Date();
+                messages.push({
+                    id: messages.length + 1,
+                    type: 'doctor',
+                    avatar: doctor.avatar,
+                    content: reply,
+                    time: replyTime.getHours().toString().padStart(2, '0') + ':' + 
+                           replyTime.getMinutes().toString().padStart(2, '0')
+                });
+                
+                renderMessages();
+            }, 1500);
+        }
+
+        // 发送快捷回复
+        function sendQuickReply(text) {
+            document.getElementById('message-input').value = text;
+            sendMessage();
+            document.getElementById('quick-reply').style.display = 'none';
+        }
+
+        // 切换快捷回复
+        function toggleQuickReply() {
+            const quickReply = document.getElementById('quick-reply');
+            quickReply.style.display = quickReply.style.display === 'none' ? 'flex' : 'none';
+        }
+
+        // 结束问诊
+        function endInquiry() {
+            if (confirm('确定要结束本次问诊吗？')) {
+                showToast('问诊已结束');
+                setTimeout(() => {
+                    goTo('prescription-detail.html');
+                }, 1000);
+            }
+        }
+
+        // 问诊计时
+        let inquirySeconds = 600; // 10分钟
+        function updateInquiryTime() {
+            inquirySeconds++;
+            const minutes = Math.floor(inquirySeconds / 60);
+            const seconds = inquirySeconds % 60;
+            document.getElementById('inquiry-time').textContent = 
+                minutes.toString().padStart(2, '0') + ':' + 
+                seconds.toString().padStart(2, '0');
+        }
+        setInterval(updateInquiryTime, 1000);
+
+        // 输入框自动增高
+        const input = document.getElementById('message-input');
+        input.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 100) + 'px';
+        });
+
+        // 回车发送
+        input.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+
+        // 初始化
+        renderMessages();
+
+        // 模拟医生正在输入
+        setTimeout(() => {
+            document.getElementById('inquiry-status').textContent = '医生正在输入...';
+            setTimeout(() => {
+                document.getElementById('inquiry-status').textContent = '问诊中';
+            }, 2000);
+        }, 5000);
+    </script>
+</body>
+</html>

@@ -1,0 +1,1238 @@
+/* 患者端特有样式 */
+
+/* ============ 登录页 ============ */
+.login-page {
+    min-height: 100vh;
+    background: linear-gradient(180deg, #E6F7FF 0%, #FFFFFF 50%);
+    display: flex;
+    flex-direction: column;
+}
+
+.login-header {
+    padding: 60px 24px 40px;
+    text-align: center;
+}
+
+.login-logo {
+    width: 80px;
+    height: 80px;
+    background: var(--primary-color);
+    border-radius: var(--radius-lg);
+    margin: 0 auto 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 40px;
+}
+
+.login-title {
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+}
+
+.login-subtitle {
+    color: var(--text-secondary);
+}
+
+.login-form {
+    flex: 1;
+    padding: 0 24px;
+}
+
+.login-form .input-group {
+    margin-bottom: 16px;
+}
+
+.login-form .input-wrapper {
+    display: flex;
+    gap: 12px;
+}
+
+.login-form .input-wrapper .input {
+    flex: 1;
+}
+
+.login-code-btn {
+    width: 100px;
+    height: 44px;
+    background: var(--primary-bg);
+    color: var(--primary-color);
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    flex-shrink: 0;
+}
+
+.login-code-btn:disabled {
+    background: var(--bg-secondary);
+    color: var(--text-disabled);
+}
+
+.login-agreement {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin: 20px 0;
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.login-agreement input {
+    margin-top: 2px;
+}
+
+.login-agreement a {
+    color: var(--primary-color);
+}
+
+.login-third-party {
+    margin-top: 40px;
+    padding-top: 24px;
+    border-top: 1px solid var(--bg-secondary);
+}
+
+.login-third-party-title {
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: 12px;
+    margin-bottom: 20px;
+    position: relative;
+}
+
+.login-third-party-title::before,
+.login-third-party-title::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    width: 60px;
+    height: 1px;
+    background: var(--border-color);
+}
+
+.login-third-party-title::before {
+    left: 20%;
+}
+
+.login-third-party-title::after {
+    right: 20%;
+}
+
+.login-third-party-btns {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+}
+
+.login-third-party-btn {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--radius-full);
+    background: var(--bg-color);
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+}
+
+/* ============ 首页 ============ */
+.home-header {
+    background: var(--primary-color);
+    color: #fff;
+    padding: 16px 16px 24px;
+}
+
+.home-header-top {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.home-location {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 14px;
+}
+
+.home-search {
+    flex: 1;
+    height: 36px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+    padding: 0 12px;
+    gap: 8px;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.home-search input {
+    flex: 1;
+    background: transparent;
+    color: #fff;
+    font-size: 14px;
+}
+
+.home-search input::placeholder {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.home-user-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-full);
+    background: rgba(255, 255, 255, 0.3);
+    overflow: hidden;
+}
+
+.home-user-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* ============ 快捷入口 ============ */
+.quick-entry {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    padding: 20px 16px;
+    background: var(--bg-color);
+    margin: -12px 16px 0;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+    position: relative;
+    z-index: 1;
+}
+
+.quick-entry-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.quick-entry-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+}
+
+.quick-entry-icon.blue { background: var(--primary-bg); color: var(--primary-color); }
+.quick-entry-icon.green { background: var(--success-bg); color: var(--success-color); }
+.quick-entry-icon.orange { background: var(--warning-bg); color: var(--warning-color); }
+.quick-entry-icon.red { background: var(--error-bg); color: var(--error-color); }
+
+.quick-entry-label {
+    font-size: 12px;
+    color: var(--text-primary);
+}
+
+/* ============ 医生卡片 ============ */
+.doctor-card {
+    background: var(--bg-color);
+    border-radius: var(--radius-md);
+    padding: 16px;
+    display: flex;
+    gap: 12px;
+    box-shadow: var(--shadow-sm);
+    cursor: pointer;
+    transition: box-shadow var(--transition-fast);
+}
+
+.doctor-card:active {
+    box-shadow: var(--shadow-md);
+}
+
+.doctor-card-avatar {
+    width: 64px;
+    height: 64px;
+    border-radius: var(--radius-full);
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.doctor-card-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.doctor-card-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.doctor-card-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 4px;
+}
+
+.doctor-card-name {
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.doctor-card-title {
+    font-size: 12px;
+    padding: 2px 6px;
+    border-radius: var(--radius-full);
+    background: var(--primary-bg);
+    color: var(--primary-color);
+}
+
+.doctor-card-title.gold {
+    background: linear-gradient(135deg, #D4AF37, #F5D68A);
+    color: #8B6914;
+}
+
+.doctor-card-title.silver {
+    background: linear-gradient(135deg, #C0C0C0, #E8E8E8);
+    color: #666;
+}
+
+.doctor-card-dept {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-bottom: 4px;
+}
+
+.doctor-card-hospital {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.doctor-card-specialty {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-top: 4px;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.doctor-card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 8px;
+}
+
+.doctor-card-rating {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 14px;
+    color: var(--warning-color);
+}
+
+.doctor-card-rating span {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.doctor-card-price {
+    font-size: 16px;
+    color: var(--error-color);
+    font-weight: 600;
+}
+
+.doctor-card-price small {
+    font-size: 12px;
+    font-weight: normal;
+}
+
+.doctor-card-status {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    color: var(--success-color);
+}
+
+.doctor-card-status.offline {
+    color: var(--text-disabled);
+}
+
+.doctor-card-status.busy {
+    color: var(--warning-color);
+}
+
+/* ============ 科室列表 ============ */
+.department-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    padding: 16px;
+}
+
+.department-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 8px;
+    background: var(--bg-color);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+}
+
+.department-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-full);
+    background: var(--primary-bg);
+    color: var(--primary-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+}
+
+.department-name {
+    font-size: 12px;
+    color: var(--text-primary);
+}
+
+/* ============ 医生详情页 ============ */
+.doctor-detail-header {
+    background: var(--primary-color);
+    color: #fff;
+    padding: 20px 16px;
+}
+
+.doctor-detail-info {
+    display: flex;
+    gap: 16px;
+}
+
+.doctor-detail-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: var(--radius-full);
+    overflow: hidden;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+}
+
+.doctor-detail-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.doctor-detail-text {
+    flex: 1;
+}
+
+.doctor-detail-name {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.doctor-detail-title {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 14px;
+    margin-bottom: 8px;
+}
+
+.doctor-detail-dept {
+    font-size: 14px;
+    opacity: 0.8;
+}
+
+.doctor-detail-hospital {
+    font-size: 14px;
+    opacity: 0.8;
+}
+
+.doctor-detail-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.doctor-detail-tag {
+    padding: 4px 12px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: var(--radius-full);
+    font-size: 12px;
+}
+
+.doctor-detail-stats {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.doctor-detail-stat {
+    text-align: center;
+}
+
+.doctor-detail-stat-value {
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.doctor-detail-stat-label {
+    font-size: 12px;
+    opacity: 0.8;
+}
+
+/* ============ 问诊类型选择 ============ */
+.inquiry-types {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    padding: 16px;
+}
+
+.inquiry-type-card {
+    background: var(--bg-color);
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 16px;
+    text-align: center;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.inquiry-type-card:active {
+    transform: scale(0.98);
+}
+
+.inquiry-type-card.selected {
+    border-color: var(--primary-color);
+    background: var(--primary-bg);
+}
+
+.inquiry-type-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--radius-full);
+    background: var(--primary-bg);
+    color: var(--primary-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 8px;
+    font-size: 24px;
+}
+
+.inquiry-type-name {
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 4px;
+}
+
+.inquiry-type-price {
+    font-size: 16px;
+    color: var(--error-color);
+    font-weight: 600;
+}
+
+/* ============ 聊天页 ============ */
+.chat-header {
+    background: var(--primary-color);
+    color: #fff;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.chat-header-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.chat-header-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-full);
+    overflow: hidden;
+}
+
+.chat-header-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.chat-header-name {
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.chat-header-status {
+    font-size: 12px;
+    opacity: 0.8;
+}
+
+.chat-header-actions {
+    display: flex;
+    gap: 16px;
+}
+
+.chat-header-btn {
+    color: #fff;
+    font-size: 20px;
+}
+
+.chat-messages {
+    flex: 1;
+    padding: 16px;
+    overflow-y: auto;
+    padding-bottom: 70px;
+}
+
+.chat-message {
+    display: flex;
+    margin-bottom: 16px;
+}
+
+.chat-message.patient {
+    flex-direction: row-reverse;
+}
+
+.chat-message-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-full);
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.chat-message-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.chat-message-content {
+    max-width: 70%;
+    margin: 0 8px;
+}
+
+.chat-message-bubble {
+    padding: 10px 14px;
+    border-radius: var(--radius-md);
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.chat-message.patient .chat-message-bubble {
+    background: var(--primary-color);
+    color: #fff;
+}
+
+.chat-message.doctor .chat-message-bubble {
+    background: var(--bg-color);
+    color: var(--text-primary);
+}
+
+.chat-message-time {
+    font-size: 10px;
+    color: var(--text-disabled);
+    margin-top: 4px;
+    text-align: center;
+}
+
+.chat-message.patient .chat-message-time {
+    text-align: right;
+}
+
+.chat-message-image {
+    max-width: 200px;
+    border-radius: var(--radius-md);
+}
+
+.chat-input-area {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--bg-color);
+    border-top: 1px solid var(--bg-secondary);
+    padding: 8px 16px;
+    padding-bottom: calc(8px + 34px);
+}
+
+.chat-input-tools {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 8px;
+}
+
+.chat-input-tool {
+    font-size: 24px;
+    color: var(--text-secondary);
+}
+
+.chat-input-wrapper {
+    display: flex;
+    gap: 12px;
+    align-items: flex-end;
+}
+
+.chat-input {
+    flex: 1;
+    min-height: 36px;
+    max-height: 100px;
+    padding: 8px 12px;
+    background: var(--bg-secondary);
+    border-radius: var(--radius-md);
+    resize: none;
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+.chat-send-btn {
+    width: 60px;
+    height: 36px;
+    background: var(--primary-color);
+    color: #fff;
+    border-radius: var(--radius-md);
+    font-size: 14px;
+}
+
+.chat-send-btn:disabled {
+    background: var(--text-disabled);
+}
+
+/* ============ 处方详情 ============ */
+.prescription-card {
+    background: var(--bg-color);
+    border-radius: var(--radius-md);
+    padding: 20px;
+    margin: 16px;
+    box-shadow: var(--shadow-md);
+}
+
+.prescription-header {
+    text-align: center;
+    padding-bottom: 16px;
+    border-bottom: 1px dashed var(--border-color);
+    margin-bottom: 16px;
+}
+
+.prescription-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.prescription-no {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.prescription-info {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    margin-bottom: 16px;
+    font-size: 14px;
+}
+
+.prescription-info-item {
+    color: var(--text-secondary);
+}
+
+.prescription-info-item span {
+    color: var(--text-primary);
+}
+
+.prescription-drugs {
+    margin-bottom: 16px;
+}
+
+.prescription-drugs-title {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--bg-secondary);
+}
+
+.prescription-drug-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--bg-secondary);
+}
+
+.prescription-drug-item:last-child {
+    border-bottom: none;
+}
+
+.prescription-drug-name {
+    font-weight: 500;
+    margin-bottom: 4px;
+}
+
+.prescription-drug-spec {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.prescription-drug-usage {
+    text-align: right;
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.prescription-drug-usage div {
+    margin-bottom: 2px;
+}
+
+.prescription-advice {
+    background: var(--warning-bg);
+    padding: 12px;
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    color: var(--warning-color);
+    margin-bottom: 16px;
+}
+
+.prescription-footer {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.prescription-actions {
+    display: flex;
+    gap: 12px;
+    padding: 16px;
+    margin: 16px;
+}
+
+/* ============ 订单 ============ */
+.order-card {
+    background: var(--bg-color);
+    border-radius: var(--radius-md);
+    margin: 16px;
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+}
+
+.order-card-header {
+    padding: 12px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--bg-secondary);
+}
+
+.order-card-shop {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.order-card-status {
+    font-size: 14px;
+    color: var(--primary-color);
+}
+
+.order-card-status.pending { color: var(--warning-color); }
+.order-card-status.success { color: var(--success-color); }
+.order-card-status.error { color: var(--error-color); }
+
+.order-card-body {
+    padding: 12px 16px;
+}
+
+.order-card-item {
+    display: flex;
+    gap: 12px;
+    padding: 8px 0;
+}
+
+.order-card-item-img {
+    width: 60px;
+    height: 60px;
+    border-radius: var(--radius-sm);
+    background: var(--bg-secondary);
+    overflow: hidden;
+}
+
+.order-card-item-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.order-card-item-info {
+    flex: 1;
+}
+
+.order-card-item-name {
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 4px;
+}
+
+.order-card-item-spec {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.order-card-item-price {
+    text-align: right;
+}
+
+.order-card-item-amount {
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.order-card-item-unit {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.order-card-footer {
+    padding: 12px 16px;
+    border-top: 1px solid var(--bg-secondary);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.order-card-total {
+    font-size: 14px;
+}
+
+.order-card-total strong {
+    color: var(--error-color);
+    font-size: 16px;
+}
+
+.order-card-actions {
+    display: flex;
+    gap: 8px;
+}
+
+/* ============ 个人中心 ============ */
+.profile-header {
+    background: var(--primary-color);
+    color: #fff;
+    padding: 24px 16px;
+}
+
+.profile-user {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.profile-avatar {
+    width: 72px;
+    height: 72px;
+    border-radius: var(--radius-full);
+    overflow: hidden;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+}
+
+.profile-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.profile-user-info {
+    flex: 1;
+}
+
+.profile-name {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.profile-phone {
+    font-size: 14px;
+    opacity: 0.8;
+}
+
+.profile-auth-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 8px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: var(--radius-full);
+    font-size: 12px;
+    margin-top: 8px;
+}
+
+.profile-stats {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.profile-stat {
+    text-align: center;
+}
+
+.profile-stat-value {
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.profile-stat-label {
+    font-size: 12px;
+    opacity: 0.8;
+}
+
+.profile-menu {
+    margin: 16px;
+    background: var(--bg-color);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+}
+
+.profile-menu-item {
+    display: flex;
+    align-items: center;
+    padding: 14px 16px;
+    gap: 12px;
+    border-bottom: 1px solid var(--bg-secondary);
+}
+
+.profile-menu-item:last-child {
+    border-bottom: none;
+}
+
+.profile-menu-icon {
+    width: 24px;
+    height: 24px;
+    color: var(--primary-color);
+    font-size: 20px;
+}
+
+.profile-menu-label {
+    flex: 1;
+    font-size: 14px;
+}
+
+.profile-menu-arrow {
+    color: var(--text-disabled);
+}
+
+/* ============ 健康档案 ============ */
+.health-record-form {
+    padding: 16px;
+}
+
+.health-record-section {
+    background: var(--bg-color);
+    border-radius: var(--radius-md);
+    padding: 16px;
+    margin-bottom: 16px;
+}
+
+.health-record-section-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--bg-secondary);
+}
+
+.health-record-row {
+    display: flex;
+    margin-bottom: 12px;
+}
+
+.health-record-label {
+    width: 80px;
+    color: var(--text-secondary);
+    font-size: 14px;
+    flex-shrink: 0;
+}
+
+.health-record-value {
+    flex: 1;
+    font-size: 14px;
+}
+
+/* ============ 筛选器 ============ */
+.filter-bar {
+    display: flex;
+    gap: 8px;
+    padding: 12px 16px;
+    background: var(--bg-color);
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.filter-bar::-webkit-scrollbar {
+    display: none;
+}
+
+.filter-item {
+    padding: 6px 12px;
+    background: var(--bg-secondary);
+    border-radius: var(--radius-full);
+    font-size: 13px;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.filter-item.active {
+    background: var(--primary-bg);
+    color: var(--primary-color);
+}
+
+/* ============ 列表项 ============ */
+.list-card {
+    background: var(--bg-color);
+    border-radius: var(--radius-md);
+    margin: 0 16px 12px;
+    overflow: hidden;
+}
+
+/* ============ 标签页 ============ */
+.tabs {
+    display: flex;
+    background: var(--bg-color);
+    border-bottom: 1px solid var(--bg-secondary);
+}
+
+.tab {
+    flex: 1;
+    padding: 12px 0;
+    text-align: center;
+    font-size: 14px;
+    color: var(--text-secondary);
+    position: relative;
+}
+
+.tab.active {
+    color: var(--primary-color);
+    font-weight: 500;
+}
+
+.tab.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 40px;
+    height: 2px;
+    background: var(--primary-color);
+    border-radius: 1px;
+}
+
+/* ============ 搜索页 ============ */
+.search-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: var(--nav-height);
+    background: var(--bg-color);
+    display: flex;
+    align-items: center;
+    padding: 0 var(--spacing-md);
+    gap: 12px;
+    z-index: 100;
+    box-shadow: var(--shadow-sm);
+}
+
+.search-input-wrapper {
+    flex: 1;
+    height: 36px;
+    background: var(--bg-secondary);
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+    padding: 0 12px;
+    gap: 8px;
+}
+
+.search-input-wrapper input {
+    flex: 1;
+    background: transparent;
+    font-size: 14px;
+}
+
+.search-cancel {
+    color: var(--primary-color);
+    font-size: 14px;
+}
+
+/* ============ 问答页 ============ */
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px;
+}
+
+.section-title {
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.section-more {
+    font-size: 13px;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* ============ 响应式 ============ */
+@media (min-width: 768px) {
+    .quick-entry {
+        margin: -12px 32px 0;
+        padding: 24px;
+    }
+
+    .department-grid {
+        grid-template-columns: repeat(8, 1fr);
+        padding: 16px 32px;
+    }
+
+    .doctor-card {
+        padding: 20px;
+    }
+
+    .profile-header {
+        padding: 32px;
+    }
+
+    .profile-stats {
+        max-width: 400px;
+        margin: 20px auto 0;
+    }
+}

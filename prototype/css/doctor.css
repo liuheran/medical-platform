@@ -1,0 +1,528 @@
+/* 医生端和管理端通用样式 */
+
+:root {
+    --success-color: #52C41A;
+    --success-bg: #F6FFED;
+    --admin-primary: #1890FF;
+    --admin-bg: #001529;
+}
+
+/* 医生端样式 */
+.doctor-login-page {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.doctor-login-header {
+    padding: 60px 24px 40px;
+    background: linear-gradient(135deg, #52C41A, #73D13D);
+    color: #fff;
+    text-align: center;
+}
+
+.doctor-login-logo {
+    width: 80px;
+    height: 80px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 20px;
+    margin: 0 auto 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 40px;
+}
+
+.doctor-login-title {
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.doctor-login-subtitle {
+    opacity: 0.9;
+    font-size: 14px;
+}
+
+.doctor-login-form {
+    flex: 1;
+    padding: 24px;
+    background: var(--bg-color);
+}
+
+/* 医生工作台样式 */
+.doctor-header {
+    background: linear-gradient(135deg, #52C41A, #73D13D);
+    color: #fff;
+    padding: 24px 16px;
+    border-radius: var(--radius-md);
+    margin-bottom: 16px;
+}
+
+.doctor-header-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.doctor-header-avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: var(--radius-full);
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    overflow: hidden;
+}
+
+.doctor-header-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.doctor-header-name {
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.doctor-header-title {
+    font-size: 13px;
+    opacity: 0.9;
+}
+
+.doctor-header-stats {
+    display: flex;
+    justify-content: space-around;
+}
+
+.doctor-header-stat {
+    text-align: center;
+}
+
+.doctor-header-stat-value {
+    font-size: 24px;
+    font-weight: 600;
+}
+
+.doctor-header-stat-label {
+    font-size: 12px;
+    opacity: 0.8;
+}
+
+/* 问诊卡片 */
+.inquiry-card {
+    background: var(--bg-color);
+    border-radius: var(--radius-md);
+    margin-bottom: 12px;
+    overflow: hidden;
+}
+
+.inquiry-card-header {
+    padding: 12px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--bg-secondary);
+}
+
+.inquiry-card-patient {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.inquiry-card-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-full);
+    overflow: hidden;
+}
+
+.inquiry-card-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.inquiry-card-name {
+    font-weight: 500;
+}
+
+.inquiry-card-type {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.inquiry-card-status {
+    padding: 4px 8px;
+    border-radius: var(--radius-full);
+    font-size: 12px;
+}
+
+.inquiry-card-status.pending {
+    background: var(--warning-bg);
+    color: var(--warning-color);
+}
+
+.inquiry-card-status.active {
+    background: var(--primary-bg);
+    color: var(--primary-color);
+}
+
+.inquiry-card-body {
+    padding: 12px 16px;
+}
+
+.inquiry-card-desc {
+    font-size: 14px;
+    color: var(--text-secondary);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.inquiry-card-footer {
+    padding: 12px 16px;
+    border-top: 1px solid var(--bg-secondary);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.inquiry-card-time {
+    font-size: 12px;
+    color: var(--text-disabled);
+}
+
+/* 医生导航 */
+.doctor-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--bg-color);
+    display: flex;
+    padding-bottom: 34px;
+    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.doctor-nav-item {
+    flex: 1;
+    padding: 10px 0;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    color: var(--text-secondary);
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.doctor-nav-item.active {
+    color: var(--success-color);
+}
+
+/* 医生入口卡片 */
+.doctor-entry-card {
+    background: var(--bg-color);
+    border-radius: var(--radius-md);
+    padding: 16px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    box-shadow: var(--shadow-sm);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.doctor-entry-card:active {
+    transform: scale(0.98);
+    box-shadow: var(--shadow-md);
+}
+
+.doctor-entry-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    background: var(--primary-bg);
+    color: var(--primary-color);
+}
+
+.doctor-entry-icon.green {
+    background: var(--success-bg);
+    color: var(--success-color);
+}
+
+.doctor-entry-info h3 {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.doctor-entry-info p {
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+/* 管理端样式 */
+.admin-page {
+    min-height: 100vh;
+    padding-bottom: 0;
+}
+
+.admin-header {
+    background: linear-gradient(135deg, #001529, #003366);
+    color: #fff;
+    padding: 24px;
+}
+
+.admin-header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.admin-logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.admin-logo-icon {
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+}
+
+.admin-logo-text {
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.admin-user {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.admin-user-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    overflow: hidden;
+}
+
+.admin-user-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.admin-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+}
+
+.admin-stat-card {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 16px;
+    text-align: center;
+}
+
+.admin-stat-value {
+    font-size: 28px;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.admin-stat-label {
+    font-size: 13px;
+    opacity: 0.8;
+}
+
+.admin-content {
+    padding: 24px;
+}
+
+.admin-card {
+    background: var(--bg-color);
+    border-radius: var(--radius-md);
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.admin-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.admin-card-title {
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.admin-table th,
+.admin-table td {
+    padding: 12px 8px;
+    text-align: left;
+    border-bottom: 1px solid var(--bg-secondary);
+    font-size: 14px;
+}
+
+.admin-table th {
+    color: var(--text-secondary);
+    font-weight: normal;
+}
+
+/* 管理端侧边栏 */
+.admin-sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 200px;
+    background: #001529;
+    padding-top: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+.admin-sidebar-item {
+    padding: 12px 20px;
+    color: rgba(255, 255, 255, 0.65);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.admin-sidebar-item:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.admin-sidebar-item.active {
+    color: #fff;
+    background: var(--primary-color);
+}
+
+.admin-main {
+    margin-left: 200px;
+    min-height: 100vh;
+    background: var(--bg-secondary);
+}
+
+.admin-topbar {
+    height: 64px;
+    background: var(--bg-color);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 24px;
+    box-shadow: var(--shadow-sm);
+}
+
+.admin-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-secondary);
+    font-size: 14px;
+}
+
+/* 数据概览卡片 */
+.data-overview {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.data-card {
+    background: var(--bg-color);
+    border-radius: var(--radius-md);
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.data-card-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+}
+
+.data-card-info {
+    flex: 1;
+}
+
+.data-card-value {
+    font-size: 28px;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.data-card-label {
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+.data-card-trend {
+    font-size: 12px;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+.data-card-trend.up {
+    background: var(--success-bg);
+    color: var(--success-color);
+}
+
+.data-card-trend.down {
+    background: var(--error-bg);
+    color: var(--error-color);
+}
+
+/* 响应式 */
+@media (max-width: 767px) {
+    .admin-sidebar {
+        display: none;
+    }
+
+    .admin-main {
+        margin-left: 0;
+    }
+
+    .admin-stats-grid,
+    .data-overview {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}

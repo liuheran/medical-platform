@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>排班管理 - 医生端</title>
+    <link rel="stylesheet" href="../css/common.css">
+    <link rel="stylesheet" href="../css/doctor.css">
+    <style>
+        body {
+            background: var(--bg-secondary);
+        }
+        .page-header {
+            background: var(--bg-color);
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid var(--bg-secondary);
+        }
+        .page-header h1 {
+            flex: 1;
+            font-size: 18px;
+            font-weight: 600;
+        }
+        .schedule-content {
+            padding: 16px;
+        }
+        .week-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+            overflow-x: auto;
+            padding-bottom: 8px;
+        }
+        .week-tab {
+            flex-shrink: 0;
+            padding: 10px 16px;
+            border-radius: var(--radius-md);
+            background: var(--bg-color);
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .week-tab:hover {
+            background: var(--primary-bg);
+        }
+        .week-tab.active {
+            background: var(--primary-color);
+            color: #fff;
+        }
+        .week-tab-day {
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .week-tab-date {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+        .schedule-card {
+            background: var(--bg-color);
+            border-radius: var(--radius-md);
+            margin-bottom: 12px;
+            overflow: hidden;
+        }
+        .schedule-card-header {
+            padding: 12px 16px;
+            background: var(--bg-secondary);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .schedule-type {
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .schedule-toggle {
+            position: relative;
+            width: 48px;
+            height: 28px;
+            background: var(--text-disabled);
+            border-radius: 14px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .schedule-toggle.active {
+            background: var(--success-color);
+        }
+        .schedule-toggle::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 24px;
+            height: 24px;
+            background: #fff;
+            border-radius: 50%;
+            transition: transform 0.2s;
+        }
+        .schedule-toggle.active::after {
+            transform: translateX(20px);
+        }
+        .schedule-card-content {
+            padding: 16px;
+        }
+        .time-slot {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+        .time-slot:last-child {
+            margin-bottom: 0;
+        }
+        .time-slot-item {
+            flex: 1;
+            padding: 10px;
+            background: var(--bg-secondary);
+            border-radius: var(--radius-sm);
+            text-align: center;
+        }
+        .time-slot-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+        .time-slot-value {
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .time-slot-value.off {
+            color: var(--text-disabled);
+        }
+        .price-section {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid var(--bg-secondary);
+        }
+        .price-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .price-row:last-child {
+            margin-bottom: 0;
+        }
+        .price-label {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+        .price-value {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .price-input {
+            width: 80px;
+            height: 32px;
+            padding: 0 8px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            text-align: right;
+            font-size: 14px;
+        }
+        .price-unit {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+        .quick-settings {
+            background: var(--bg-color);
+            border-radius: var(--radius-md);
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+        .quick-settings-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+        .quick-btn-group {
+            display: flex;
+            gap: 8px;
+        }
+        .quick-btn {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            background: transparent;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .quick-btn:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+        .quick-btn.active {
+            background: var(--primary-bg);
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+        .calendar-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        .calendar-nav-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: var(--radius-full);
+            background: var(--bg-color);
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        .calendar-month {
+            font-size: 16px;
+            font-weight: 600;
+        }
+        .page-footer {
+            padding: 16px;
+            background: var(--bg-color);
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding-bottom: 34px;
+            box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.06);
+        }
+        .save-btn {
+            width: 100%;
+            height: 48px;
+            background: var(--success-color);
+            color: #fff;
+            border: none;
+            border-radius: var(--radius-md);
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .doctor-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--bg-color);
+            display: flex;
+            padding-bottom: 100px;
+            box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.06);
+        }
+        .doctor-nav-item {
+            flex: 1;
+            padding: 10px 0;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            color: var(--text-secondary);
+            font-size: 12px;
+        }
+        .doctor-nav-item.active {
+            color: var(--success-color);
+        }
+        .page-content {
+            padding-bottom: 120px;
+        }
+        .schedule-date-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 12px;
+            padding: 8px 0;
+        }
+        .time-slot-item {
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+        .time-slot-item:hover:not(.disabled) {
+            background: var(--primary-bg);
+        }
+        .time-slot-item.disabled {
+            cursor: default;
+            opacity: 0.6;
+        }
+        .edit-hint {
+            font-size: 10px;
+            color: var(--primary-color);
+            margin-top: 4px;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        .time-slot-item:hover .edit-hint {
+            opacity: 1;
+        }
+        .schedule-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+        }
+        .action-btn {
+            flex: 1;
+            padding: 10px;
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            font-size: 12px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .action-btn:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+        .week-tab.today {
+            border: 2px solid var(--success-color);
+        }
+        .week-tab.active {
+            background: var(--success-color);
+            color: #fff;
+        }
+        .week-tab.today.active {
+            border-color: var(--success-color);
+        }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <div class="page-header">
+            <a href="index.html" class="back-btn">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                    <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+                </svg>
+            </a>
+            <h1>排班管理</h1>
+        </div>
+        
+        <div class="schedule-content">
+            <!-- 快捷设置 -->
+            <div class="quick-settings">
+                <div class="quick-settings-title">快捷设置</div>
+                <div class="quick-btn-group">
+                    <button class="quick-btn" onclick="applyQuickSet('workday')">工作日模板</button>
+                    <button class="quick-btn" onclick="applyQuickSet('weekend')">周末休息</button>
+                    <button class="quick-btn" onclick="applyQuickSet('all')">全天接诊</button>
+                </div>
+            </div>
+            
+            <!-- 周导航 -->
+            <div class="calendar-nav">
+                <button class="calendar-nav-btn" onclick="changeWeek(-1)">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                        <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/>
+                    </svg>
+                </button>
+                <span class="calendar-month" id="current-month">2026年5月</span>
+                <button class="calendar-nav-btn" onclick="changeWeek(1)">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                        <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>
+                    </svg>
+                </button>
+            </div>
+            
+            <div class="week-tabs" id="week-tabs">
+                <!-- 动态渲染 -->
+            </div>
+            
+            <!-- 排班详情 -->
+            <div id="schedule-details">
+                <!-- 动态渲染 -->
+            </div>
+        </div>
+        
+        <!-- 保存按钮 -->
+        <div class="page-footer">
+            <button class="save-btn" onclick="saveSchedule()">保存排班</button>
+        </div>
+        
+        <!-- 底部导航 -->
+        <div class="doctor-nav">
+            <div class="doctor-nav-item active" onclick="location.href='index.html'">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                    <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+                </svg>
+                <span>工作台</span>
+            </div>
+            <div class="doctor-nav-item" onclick="location.href='patients.html'">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                    <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+                </svg>
+                <span>患者</span>
+            </div>
+            <div class="doctor-nav-item" onclick="location.href='prescription.html'">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                    <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+                </svg>
+                <span>处方</span>
+            </div>
+            <div class="doctor-nav-item" onclick="location.href='statistics.html'">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                    <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/>
+                </svg>
+                <span>统计</span>
+            </div>
+            <div class="doctor-nav-item" onclick="location.href='settings.html'">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                    <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                </svg>
+                <span>我的</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 默认排班模板
+        const defaultSchedule = {
+            text: { enabled: true, morning: '08:00-12:00', afternoon: '14:00-18:00', price: 30 },
+            voice: { enabled: true, morning: '09:00-11:00', afternoon: '15:00-17:00', price: 50 },
+            video: { enabled: false, morning: '10:00-12:00', afternoon: '14:00-16:00', price: 80 }
+        };
+
+        // 排班数据 - 按日期存储
+        let scheduleData = {};
+        
+        let currentWeekOffset = 0;
+        let selectedDate = '';
+
+        // 生成日期字符串 YYYY-MM-DD
+        function formatDate(date) {
+            return date.toISOString().split('T')[0];
+        }
+
+        // 获取本周一日期
+        function getWeekStart() {
+            const today = new Date();
+            const day = today.getDay();
+            const diff = today.getDate() - day + (day === 0 ? -6 : 1);
+            const monday = new Date(today.setDate(diff));
+            return new Date(monday.getTime() + currentWeekOffset * 7 * 24 * 60 * 60 * 1000);
+        }
+
+        // 生成周数据
+        function generateWeekData() {
+            const weekStart = getWeekStart();
+            const weekData = [];
+            for (let i = 0; i < 7; i++) {
+                const date = new Date(weekStart.getTime() + i * 24 * 60 * 60 * 1000);
+                weekData.push({
+                    day: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'][i],
+                    date: `${date.getMonth() + 1}月${date.getDate()}日`,
+                    fullDate: formatDate(date),
+                    isToday: formatDate(date) === formatDate(new Date())
+                });
+            }
+            return weekData;
+        }
+
+        // 获取指定日期的排班数据
+        function getDaySchedule(date) {
+            if (!scheduleData[date]) {
+                // 使用默认模板初始化
+                scheduleData[date] = JSON.parse(JSON.stringify(defaultSchedule));
+            }
+            return scheduleData[date];
+        }
+
+        // 渲染周导航
+        function renderWeekTabs() {
+            const container = document.getElementById('week-tabs');
+            const weekData = generateWeekData();
+            
+            container.innerHTML = weekData.map((day, index) => `
+                <div class="week-tab ${day.fullDate === selectedDate ? 'active' : ''} ${day.isToday ? 'today' : ''}" onclick="selectDay('${day.fullDate}')">
+                    <div class="week-tab-day">${day.day}</div>
+                    <div class="week-tab-date">${day.date}</div>
+                </div>
+            `).join('');
+        }
+
+        // 选择日期
+        function selectDay(date) {
+            selectedDate = date;
+            renderWeekTabs();
+            renderScheduleDetails();
+            updateMonthDisplay();
+        }
+
+        // 更新月份显示
+        function updateMonthDisplay() {
+            const date = new Date(selectedDate);
+            document.getElementById('current-month').textContent = `${date.getFullYear()}年${date.getMonth() + 1}月`;
+        }
+
+        // 切换周
+        function changeWeek(direction) {
+            currentWeekOffset += direction;
+            if (currentWeekOffset < -4) currentWeekOffset = -4;
+            if (currentWeekOffset > 8) currentWeekOffset = 8;
+            const weekData = generateWeekData();
+            // 保持选择日期在当前周内
+            if (!weekData.find(d => d.fullDate === selectedDate)) {
+                selectedDate = weekData[0].fullDate;
+            }
+            renderWeekTabs();
+            renderScheduleDetails();
+            updateMonthDisplay();
+        }
+
+        // 编辑时间段
+        function editTimeSlot(type, period) {
+            const schedule = getDaySchedule(selectedDate);
+            const currentValue = schedule[type][period];
+            const newValue = prompt(`修改${period === 'morning' ? '上午' : '下午'}时间段\n格式: HH:MM-HH:MM\n例如: 08:00-12:00`, currentValue);
+            
+            if (newValue && /^(\d{1,2}:\d{2}-\d{1,2}:\d{2})$/.test(newValue)) {
+                schedule[type][period] = newValue;
+                renderScheduleDetails();
+            } else if (newValue !== null) {
+                showToast('格式错误，请使用 HH:MM-HH:MM 格式');
+            }
+        }
+
+        // 渲染排班详情
+        function renderScheduleDetails() {
+            const schedule = getDaySchedule(selectedDate);
+            const container = document.getElementById('schedule-details');
+            const dateObj = new Date(selectedDate);
+            const weekday = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'][dateObj.getDay()];
+            
+            // 渲染时间段：如果是全天模式（afternoon为空），只显示一个"全天"卡片
+            function renderTimeSlots(type) {
+                const item = schedule[type];
+                const isFullDay = item.enabled && !item.afternoon;
+                const disabled = !item.enabled ? 'disabled' : '';
+                
+                if (isFullDay) {
+                    return `
+                        <div class="time-slot">
+                            <div class="time-slot-item ${disabled}" onclick="editTimeSlot('${type}', 'morning')">
+                                <div class="time-slot-label">全天</div>
+                                <div class="time-slot-value">${item.morning}</div>
+                                <div class="edit-hint">点击修改</div>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    return `
+                        <div class="time-slot">
+                            <div class="time-slot-item ${disabled}" onclick="editTimeSlot('${type}', 'morning')">
+                                <div class="time-slot-label">上午</div>
+                                <div class="time-slot-value ${item.enabled ? '' : 'off'}">${item.enabled ? item.morning : '休息'}</div>
+                                ${item.enabled ? '<div class="edit-hint">点击修改</div>' : ''}
+                            </div>
+                            <div class="time-slot-item ${disabled}" onclick="editTimeSlot('${type}', 'afternoon')">
+                                <div class="time-slot-label">下午</div>
+                                <div class="time-slot-value ${item.enabled ? '' : 'off'}">${item.enabled ? item.afternoon : '休息'}</div>
+                                ${item.enabled ? '<div class="edit-hint">点击修改</div>' : ''}
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+            
+            container.innerHTML = `
+                <div class="schedule-date-title">${dateObj.getMonth() + 1}月${dateObj.getDate()}日 ${weekday}</div>
+                
+                <div class="schedule-card">
+                    <div class="schedule-card-header">
+                        <span class="schedule-type">图文问诊</span>
+                        <div class="schedule-toggle ${schedule.text.enabled ? 'active' : ''}" onclick="toggleSchedule('text')"></div>
+                    </div>
+                    <div class="schedule-card-content">
+                        ${renderTimeSlots('text')}
+                        <div class="price-section">
+                            <div class="price-row">
+                                <span class="price-label">问诊价格</span>
+                                <div class="price-value">
+                                    <span class="price-unit">¥</span>
+                                    <input type="number" class="price-input" value="${schedule.text.price}" min="1" max="999" onchange="updatePrice('text', this.value)">
+                                    <span class="price-unit">/次</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="schedule-card">
+                    <div class="schedule-card-header">
+                        <span class="schedule-type">语音问诊</span>
+                        <div class="schedule-toggle ${schedule.voice.enabled ? 'active' : ''}" onclick="toggleSchedule('voice')"></div>
+                    </div>
+                    <div class="schedule-card-content">
+                        ${renderTimeSlots('voice')}
+                        <div class="price-section">
+                            <div class="price-row">
+                                <span class="price-label">问诊价格</span>
+                                <div class="price-value">
+                                    <span class="price-unit">¥</span>
+                                    <input type="number" class="price-input" value="${schedule.voice.price}" min="1" max="999" onchange="updatePrice('voice', this.value)">
+                                    <span class="price-unit">/次</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="schedule-card">
+                    <div class="schedule-card-header">
+                        <span class="schedule-type">视频问诊</span>
+                        <div class="schedule-toggle ${schedule.video.enabled ? 'active' : ''}" onclick="toggleSchedule('video')"></div>
+                    </div>
+                    <div class="schedule-card-content">
+                        ${renderTimeSlots('video')}
+                        <div class="price-section">
+                            <div class="price-row">
+                                <span class="price-label">问诊价格</span>
+                                <div class="price-value">
+                                    <span class="price-unit">¥</span>
+                                    <input type="number" class="price-input" value="${schedule.video.price}" min="1" max="999" onchange="updatePrice('video', this.value)">
+                                    <span class="price-unit">/次</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="schedule-actions">
+                    <button class="action-btn" onclick="copyToWeekdays()">复制到工作日</button>
+                    <button class="action-btn" onclick="copyToWeekends()">复制到周末</button>
+                    <button class="action-btn" onclick="copyToAll()">复制到整周</button>
+                </div>
+            `;
+        }
+
+        // 切换排班开关
+        function toggleSchedule(type) {
+            const schedule = getDaySchedule(selectedDate);
+            schedule[type].enabled = !schedule[type].enabled;
+            renderScheduleDetails();
+        }
+
+        // 更新价格
+        function updatePrice(type, value) {
+            const val = parseInt(value) || 0;
+            if (val < 1) {
+                showToast('价格不能小于1元');
+                renderScheduleDetails();
+                return;
+            }
+            if (val > 999) {
+                showToast('价格不能超过999元');
+                renderScheduleDetails();
+                return;
+            }
+            const schedule = getDaySchedule(selectedDate);
+            schedule[type].price = val;
+        }
+
+        // 复制到工作日
+        function copyToWeekdays() {
+            const schedule = getDaySchedule(selectedDate);
+            const weekData = generateWeekData();
+            weekData.forEach((day, index) => {
+                if (index < 5) { // 周一到周五
+                    scheduleData[day.fullDate] = JSON.parse(JSON.stringify(schedule));
+                }
+            });
+            showToast('已复制到工作日');
+        }
+
+        // 复制到周末
+        function copyToWeekends() {
+            const schedule = getDaySchedule(selectedDate);
+            const weekData = generateWeekData();
+            weekData.forEach((day, index) => {
+                if (index >= 5) { // 周六周日
+                    scheduleData[day.fullDate] = JSON.parse(JSON.stringify(schedule));
+                }
+            });
+            showToast('已复制到周末');
+        }
+
+        // 复制到整周
+        function copyToAll() {
+            const schedule = getDaySchedule(selectedDate);
+            const weekData = generateWeekData();
+            weekData.forEach(day => {
+                scheduleData[day.fullDate] = JSON.parse(JSON.stringify(schedule));
+            });
+            showToast('已复制到整周');
+        }
+
+        // 快捷设置
+        function applyQuickSet(mode) {
+            document.querySelectorAll('.quick-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            let template;
+            switch (mode) {
+                case 'workday':
+                    template = { enabled: true, morning: '08:00-12:00', afternoon: '14:00-18:00' };
+                    break;
+                case 'weekend':
+                    template = { enabled: false, morning: '休息', afternoon: '休息' };
+                    break;
+                case 'all':
+                    template = { enabled: true, morning: '08:00-18:00', afternoon: '' };
+                    break;
+            }
+            
+            const weekData = generateWeekData();
+            weekData.forEach((day, index) => {
+                if (!scheduleData[day.fullDate]) {
+                    scheduleData[day.fullDate] = JSON.parse(JSON.stringify(defaultSchedule));
+                }
+                
+                const date = new Date(day.fullDate);
+                const dayOfWeek = date.getDay();
+                const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+                
+                if (mode === 'workday' && !isWeekend) {
+                    scheduleData[day.fullDate].text = { ...template, price: scheduleData[day.fullDate].text.price };
+                    scheduleData[day.fullDate].voice = { ...template, morning: '09:00-11:00', afternoon: '15:00-17:00', price: scheduleData[day.fullDate].voice.price };
+                    scheduleData[day.fullDate].video = { enabled: false, morning: '10:00-12:00', afternoon: '14:00-16:00', price: scheduleData[day.fullDate].video.price };
+                } else if (mode === 'weekend' && isWeekend) {
+                    ['text', 'voice', 'video'].forEach(type => {
+                        scheduleData[day.fullDate][type] = { ...template, price: scheduleData[day.fullDate][type].price };
+                    });
+                } else if (mode === 'all') {
+                    ['text', 'voice', 'video'].forEach(type => {
+                        scheduleData[day.fullDate][type] = { ...template, price: scheduleData[day.fullDate][type].price };
+                    });
+                }
+            });
+            
+            renderScheduleDetails();
+            showToast('已应用快捷设置');
+        }
+
+        // 保存排班
+        function saveSchedule() {
+            // 校验数据
+            let hasError = false;
+            Object.keys(scheduleData).forEach(date => {
+                ['text', 'voice', 'video'].forEach(type => {
+                    const price = scheduleData[date][type].price;
+                    if (price < 1 || price > 999) {
+                        hasError = true;
+                    }
+                });
+            });
+            
+            if (hasError) {
+                showToast('价格设置异常，请检查');
+                return;
+            }
+            
+            // 模拟保存到后端
+            console.log('保存排班数据:', JSON.stringify(scheduleData, null, 2));
+            showToast('排班保存成功');
+            setTimeout(() => {
+                location.href = 'index.html';
+            }, 1000);
+        }
+
+        // Toast提示
+        function showToast(message) {
+            const existing = document.querySelector('.toast');
+            if (existing) existing.remove();
+            
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.textContent = message;
+            toast.style.cssText = `
+                position: fixed;
+                top: 80px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: rgba(0,0,0,0.8);
+                color: #fff;
+                padding: 12px 24px;
+                border-radius: 24px;
+                font-size: 14px;
+                z-index: 9999;
+            `;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 2000);
+        }
+
+        // 页面加载时初始化
+        function init() {
+            const weekData = generateWeekData();
+            selectedDate = weekData.find(d => d.isToday)?.fullDate || weekData[0].fullDate;
+            renderWeekTabs();
+            renderScheduleDetails();
+            updateMonthDisplay();
+        }
+        
+        init();
+    </script>
+</body>
+</html>

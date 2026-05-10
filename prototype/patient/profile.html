@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>个人中心 - 在线问诊平台</title>
+    <link rel="stylesheet" href="../css/common.css">
+    <link rel="stylesheet" href="../css/patient.css">
+</head>
+<body>
+    <div class="page">
+        <!-- 用户信息头部 -->
+        <div class="profile-header">
+            <div class="profile-user">
+                <div class="profile-avatar">
+                    <img src="https://i.pravatar.cc/150?img=70" alt="" id="user-avatar">
+                </div>
+                <div class="profile-user-info">
+                    <div class="profile-name" id="user-name">加载中...</div>
+                    <div class="profile-phone" id="user-phone">-</div>
+                    <div class="profile-auth-status" id="auth-status">
+                        <svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                        </svg>
+                        未实名
+                    </div>
+                </div>
+                <a href="real-name.html" class="btn btn-sm" style="background: rgba(255,255,255,0.2); color: #fff;">
+                    实名认证
+                </a>
+            </div>
+            <div class="profile-stats">
+                <div class="profile-stat">
+                    <div class="profile-stat-value">100.00</div>
+                    <div class="profile-stat-label">余额（元）</div>
+                </div>
+                <div class="profile-stat">
+                    <div class="profile-stat-value">500</div>
+                    <div class="profile-stat-label">积分</div>
+                </div>
+                <div class="profile-stat">
+                    <div class="profile-stat-value">3</div>
+                    <div class="profile-stat-label">优惠券</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 内容区域 -->
+        <div class="content" style="margin-top: 0; padding-top: 0;">
+            <!-- 订单快捷入口 -->
+            <div class="card" style="margin: 16px; margin-top: -20px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                    <div style="font-weight: 600;">我的订单</div>
+                    <a href="order-list.html" style="color: var(--text-secondary); font-size: 13px; display: flex; align-items: center;">
+                        全部订单
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                            <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>
+                        </svg>
+                    </a>
+                </div>
+                <div style="display: flex; justify-content: space-around;">
+                    <div class="flex-col flex-center" style="flex: 1; cursor: pointer;" onclick="goTo('order-list.html?status=1')">
+                        <div style="position: relative;">
+                            <svg viewBox="0 0 24 24" width="28" height="28" fill="var(--text-secondary)">
+                                <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+                            </svg>
+                            <span class="badge" style="position: absolute; top: -4px; right: -8px;">1</span>
+                        </div>
+                        <span style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">待支付</span>
+                    </div>
+                    <div class="flex-col flex-center" style="flex: 1; cursor: pointer;" onclick="goTo('order-list.html?status=2,3,4')">
+                        <svg viewBox="0 0 24 24" width="28" height="28" fill="var(--text-secondary)">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                        </svg>
+                        <span style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">待发货</span>
+                    </div>
+                    <div class="flex-col flex-center" style="flex: 1; cursor: pointer;" onclick="goTo('order-list.html?status=4')">
+                        <svg viewBox="0 0 24 24" width="28" height="28" fill="var(--text-secondary)">
+                            <path d="M20.5 6c-2.61.7-5.67 1-8.5 1s-5.89-.3-8.5-1L3 8c1.86.5 4 .83 6 1v13h2v-6h2v6h2V9c2-.17 4.14-.5 6-1l-.5-2zM12 6c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2z"/>
+                        </svg>
+                        <span style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">待收货</span>
+                    </div>
+                    <div class="flex-col flex-center" style="flex: 1; cursor: pointer;" onclick="goTo('order-list.html?status=5')">
+                        <svg viewBox="0 0 24 24" width="28" height="28" fill="var(--text-secondary)">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                        </svg>
+                        <span style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">已完成</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 功能菜单 -->
+            <div class="profile-menu">
+                <a class="profile-menu-item" href="health-record.html">
+                    <div class="profile-menu-icon">
+                        <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
+                            <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-1 11h-4v4h-4v-4H6v-4h4V6h4v4h4v4z"/>
+                        </svg>
+                    </div>
+                    <span class="profile-menu-label">健康档案</span>
+                    <span class="profile-menu-arrow">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                            <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>
+                        </svg>
+                    </span>
+                </a>
+                <a class="profile-menu-item" href="prescription-list.html">
+                    <div class="profile-menu-icon">
+                        <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
+                            <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+                        </svg>
+                    </div>
+                    <span class="profile-menu-label">我的处方</span>
+                    <span class="profile-menu-arrow">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                            <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>
+                        </svg>
+                    </span>
+                </a>
+                <a class="profile-menu-item" href="inquiry-history.html">
+                    <div class="profile-menu-icon">
+                        <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
+                            <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/>
+                        </svg>
+                    </div>
+                    <span class="profile-menu-label">问诊记录</span>
+                    <span class="profile-menu-arrow">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                            <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>
+                        </svg>
+                    </span>
+                </a>
+            </div>
+
+            <div class="profile-menu">
+                <a class="profile-menu-item" href="coupon.html">
+                    <div class="profile-menu-icon">
+                        <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
+                            <path d="M21.41 11.58l-9-9C12.05 2.22 11.55 2 11 2H4c-1.1 0-2 .9-2 2v7c0 .55.22 1.05.59 1.42l9 9c.36.36.86.58 1.41.58.55 0 1.05-.22 1.41-.59l7-7c.37-.36.59-.86.59-1.41 0-.55-.23-1.06-.59-1.42zM5.5 7C4.67 7 4 6.33 4 5.5S4.67 4 5.5 4 7 4.67 7 5.5 6.33 7 5.5 7z"/>
+                        </svg>
+                    </div>
+                    <span class="profile-menu-label">优惠券</span>
+                    <span class="profile-menu-arrow">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                            <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>
+                        </svg>
+                    </span>
+                </a>
+                <a class="profile-menu-item" href="address.html">
+                    <div class="profile-menu-icon">
+                        <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
+                            <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                        </svg>
+                    </div>
+                    <span class="profile-menu-label">收货地址</span>
+                    <span class="profile-menu-arrow">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                            <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>
+                        </svg>
+                    </span>
+                </a>
+                <a class="profile-menu-item" href="settings.html">
+                    <div class="profile-menu-icon">
+                        <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
+                            <path d="M19.14 12.94c.04-.31.06-.63.06-.94 0-.31-.02-.63-.06-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
+                        </svg>
+                    </div>
+                    <span class="profile-menu-label">设置</span>
+                    <span class="profile-menu-arrow">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                            <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>
+                        </svg>
+                    </span>
+                </a>
+            </div>
+
+            <!-- 退出登录 -->
+            <div style="padding: 16px;">
+                <button class="btn btn-default btn-block" onclick="logout()">退出登录</button>
+            </div>
+        </div>
+
+        <!-- 底部导航 -->
+        <div class="tab-bar">
+            <div class="tab-item" onclick="goTo('home.html')">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                    <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+                </svg>
+                <span>首页</span>
+            </div>
+            <div class="tab-item" onclick="goTo('doctor-list.html')">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                    <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+                </svg>
+                <span>问诊</span>
+            </div>
+            <div class="tab-item" onclick="goTo('order-list.html')">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                    <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+                </svg>
+                <span>订单</span>
+            </div>
+            <div class="tab-item active">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                    <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                </svg>
+                <span>我的</span>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/mock-data.js"></script>
+    <script>
+        // 检查登录状态
+        if (!isLoggedIn()) {
+            mockLogin('13800138000', '123456');
+        }
+
+        // 填充用户信息
+        const user = getCurrentUser();
+        if (user) {
+            document.getElementById('user-name').textContent = user.nickname || '用户';
+            document.getElementById('user-phone').textContent = user.phone;
+            if (user.avatar) {
+                document.getElementById('user-avatar').src = user.avatar;
+            }
+        }
+
+        // 退出登录
+        function logout() {
+            if (confirm('确定要退出登录吗？')) {
+                clearCurrentUser();
+                showToast('已退出登录');
+                setTimeout(() => {
+                    goTo('login.html');
+                }, 1000);
+            }
+        }
+    </script>
+</body>
+</html>

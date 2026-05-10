@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>处方详情 - 在线问诊平台</title>
+    <link rel="stylesheet" href="../css/common.css">
+    <link rel="stylesheet" href="../css/patient.css">
+    <style>
+        .prescription-detail-page {
+            padding-bottom: 80px;
+        }
+
+        .prescription-paper {
+            background: #fff;
+            margin: 16px;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-md);
+            overflow: hidden;
+        }
+
+        .prescription-paper-header {
+            background: linear-gradient(135deg, #1890FF, #40A9FF);
+            color: #fff;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .prescription-paper-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .prescription-paper-org {
+            font-size: 13px;
+            opacity: 0.9;
+        }
+
+        .prescription-paper-body {
+            padding: 20px;
+        }
+
+        .prescription-info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px 16px;
+            font-size: 14px;
+            margin-bottom: 16px;
+            padding-bottom: 16px;
+            border-bottom: 1px dashed var(--border-color);
+        }
+
+        .prescription-info-label {
+            color: var(--text-secondary);
+        }
+
+        .prescription-drugs-table {
+            width: 100%;
+            font-size: 13px;
+            margin-bottom: 16px;
+        }
+
+        .prescription-drugs-table th {
+            text-align: left;
+            padding: 8px 4px;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            font-weight: normal;
+        }
+
+        .prescription-drugs-table td {
+            padding: 10px 4px;
+            border-bottom: 1px solid var(--bg-secondary);
+            vertical-align: top;
+        }
+
+        .prescription-drugs-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .drug-name {
+            font-weight: 500;
+        }
+
+        .drug-spec {
+            font-size: 11px;
+            color: var(--text-secondary);
+        }
+
+        .prescription-advice-box {
+            background: #FFF9E6;
+            padding: 12px;
+            border-radius: var(--radius-sm);
+            margin-bottom: 16px;
+        }
+
+        .prescription-advice-title {
+            font-size: 13px;
+            color: var(--warning-color);
+            margin-bottom: 4px;
+        }
+
+        .prescription-advice-content {
+            font-size: 14px;
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .prescription-signature {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            font-size: 12px;
+            color: var(--text-secondary);
+            padding-top: 16px;
+            border-top: 1px dashed var(--border-color);
+        }
+
+        .prescription-signature img {
+            width: 80px;
+            height: 30px;
+            background: var(--bg-secondary);
+        }
+
+        .prescription-status-bar {
+            background: var(--success-bg);
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: var(--success-color);
+            margin: 0 16px 16px;
+            border-radius: var(--radius-md);
+        }
+
+        .prescription-status-bar.pending {
+            background: var(--warning-bg);
+            color: var(--warning-color);
+        }
+
+        .prescription-actions {
+            display: flex;
+            gap: 12px;
+            padding: 0 16px;
+        }
+
+        .prescription-actions .btn {
+            flex: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="page prescription-detail-page">
+        <!-- 导航栏 -->
+        <div class="navbar">
+            <div class="navbar-left">
+                <a href="javascript:history.back()" class="navbar-icon">
+                    <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                        <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+                    </svg>
+                </a>
+            </div>
+            <div class="navbar-title">处方详情</div>
+            <div class="navbar-right"></div>
+        </div>
+
+        <div class="content" style="margin-top: var(--nav-height);">
+            <!-- 状态提示 -->
+            <div class="prescription-status-bar pending">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                </svg>
+                <span>处方审核通过，待购买药品</span>
+            </div>
+
+            <!-- 处方笺 -->
+            <div class="prescription-paper">
+                <div class="prescription-paper-header">
+                    <div class="prescription-paper-title">电子处方笺</div>
+                    <div class="prescription-paper-org">互联网医院</div>
+                </div>
+                <div class="prescription-paper-body">
+                    <div class="prescription-info-grid">
+                        <div><span class="prescription-info-label">姓名：</span>张三</div>
+                        <div><span class="prescription-info-label">性别：</span>男</div>
+                        <div><span class="prescription-info-label">年龄：</span>45岁</div>
+                        <div><span class="prescription-info-label">日期：</span>2026-05-10</div>
+                        <div style="grid-column: span 2;"><span class="prescription-info-label">诊断：</span>原发性高血压</div>
+                    </div>
+
+                    <table class="prescription-drugs-table">
+                        <thead>
+                            <tr>
+                                <th>药品名称</th>
+                                <th>规格</th>
+                                <th>数量</th>
+                                <th>用法</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <div class="drug-name">硝苯地平缓释片</div>
+                                    <div class="drug-spec">20mg×30片</div>
+                                </td>
+                                <td>20mg×30片</td>
+                                <td>2盒</td>
+                                <td>
+                                    <div>口服</div>
+                                    <div>每日2次</div>
+                                    <div>每次1片</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="drug-name">缬沙坦胶囊</div>
+                                    <div class="drug-spec">80mg×7粒</div>
+                                </td>
+                                <td>80mg×7粒</td>
+                                <td>2盒</td>
+                                <td>
+                                    <div>口服</div>
+                                    <div>每日1次</div>
+                                    <div>每次1粒</div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="prescription-advice-box">
+                        <div class="prescription-advice-title">用药指导</div>
+                        <div class="prescription-advice-content">
+                            1. 低盐低脂饮食<br>
+                            2. 适当运动，保持心情愉悦<br>
+                            3. 定期监测血压
+                        </div>
+                    </div>
+
+                    <div class="prescription-signature">
+                        <div>
+                            <div>处方医师：王建国</div>
+                            <div>处方号：RX202605100000001</div>
+                        </div>
+                        <div>
+                            <div>审核药师：刘药师</div>
+                            <div>审核时间：2026-05-10 14:30</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 有效期提示 -->
+            <div class="card mt-md" style="margin: 16px;">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <div style="width: 48px; height: 48px; background: var(--warning-bg); border-radius: var(--radius-full); display: flex; align-items: center; justify-content: center; color: var(--warning-color);">
+                        <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                            <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/>
+                        </svg>
+                    </div>
+                    <div style="flex: 1;">
+                        <div style="font-weight: 500; margin-bottom: 2px;">处方有效期</div>
+                        <div style="font-size: 13px; color: var(--text-secondary);">2026-05-10 至 2026-05-17（剩余7天）</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 操作按钮 -->
+            <div class="prescription-actions" style="margin-top: 16px;">
+                <button class="btn btn-default" onclick="copyPrescription()">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+                        <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
+                    </svg>
+                    复制处方
+                </button>
+                <button class="btn btn-primary btn-lg" onclick="goTo('order-list.html')">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+                        <path d="M15.55 13c.75 0 1.41-.41 1.75-1.03l3.58-6.47c.37-.66-.11-1.48-.87-1.48H5.21l-.94-2H1v2h2l3.6 7.59-1.35 2.44C4.52 15.37 5.48 17 7 17h12v-2H7l1.1-2h7.45zm-.75 2h-4.1l1.19-2H12l.87 2H14.8l-1.9 3.4-1.35-2.4z"/>
+                    </svg>
+                    去购药
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/mock-data.js"></script>
+    <script>
+        function copyPrescription() {
+            const text = `电子处方笺
+处方号：RX202605100000001
+姓名：张三
+诊断：原发性高血压
+
+药品：
+1. 硝苯地平缓释片 20mg×30片 × 2盒
+   用法：口服，每日2次，每次1片
+2. 缬沙坦胶囊 80mg×7粒 × 2盒
+   用法：口服，每日1次，每次1粒
+
+处方医师：王建国
+审核药师：刘药师
+审核时间：2026-05-10 14:30`;
+
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('处方信息已复制');
+            }).catch(() => {
+                showToast('复制失败');
+            });
+        }
+    </script>
+</body>
+</html>

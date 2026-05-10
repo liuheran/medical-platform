@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>患者列表 - 医生端</title>
+    <link rel="stylesheet" href="../css/common.css">
+    <link rel="stylesheet" href="../css/doctor.css">
+    <script src="../js/avatar.js"></script>
+    <style>
+        body {
+            background: var(--bg-secondary);
+        }
+        .page-header {
+            background: var(--bg-color);
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid var(--bg-secondary);
+        }
+        .page-header h1 {
+            flex: 1;
+            font-size: 18px;
+            font-weight: 600;
+        }
+        .search-bar {
+            background: var(--bg-color);
+            padding: 12px 16px;
+            display: flex;
+            gap: 12px;
+        }
+        .search-input-wrapper {
+            flex: 1;
+            position: relative;
+        }
+        .search-input {
+            width: 100%;
+            height: 36px;
+            padding: 0 36px;
+            border: 1px solid var(--border-color);
+            border-radius: 18px;
+            font-size: 14px;
+            background: var(--bg-secondary);
+        }
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-disabled);
+        }
+        .filter-tabs {
+            background: var(--bg-color);
+            padding: 12px 16px;
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+        .filter-tab {
+            padding: 6px 16px;
+            border-radius: 16px;
+            font-size: 13px;
+            background: var(--bg-secondary);
+            color: var(--text-secondary);
+            flex-shrink: 0;
+        }
+        .filter-tab.active {
+            background: var(--primary-bg);
+            color: var(--primary-color);
+        }
+        .patient-card {
+            background: var(--bg-color);
+            border-radius: var(--radius-md);
+            padding: 16px;
+            margin: 12px 16px;
+            display: flex;
+            gap: 12px;
+        }
+        .patient-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: var(--radius-full);
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+        .patient-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .patient-info {
+            flex: 1;
+            min-width: 0;
+        }
+        .patient-name {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        .patient-meta {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+        .patient-desc {
+            font-size: 13px;
+            color: var(--text-secondary);
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+        .patient-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .patient-time {
+            font-size: 12px;
+            color: var(--text-disabled);
+        }
+        .inquiry-count {
+            font-size: 12px;
+            color: var(--primary-color);
+            background: var(--primary-bg);
+            padding: 4px 8px;
+            border-radius: 12px;
+        }
+        .doctor-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--bg-color);
+            display: flex;
+            padding-bottom: 34px;
+            box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.06);
+        }
+        .doctor-nav-item {
+            flex: 1;
+            padding: 10px 0;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            color: var(--text-secondary);
+            font-size: 12px;
+        }
+        .doctor-nav-item.active {
+            color: var(--success-color);
+        }
+        .page-content {
+            padding-bottom: 80px;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+        }
+        .empty-state svg {
+            width: 80px;
+            height: 80px;
+            color: var(--text-disabled);
+            margin-bottom: 16px;
+        }
+        .empty-state p {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <div class="page-header">
+            <a href="index.html" class="back-btn">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                    <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+                </svg>
+            </a>
+            <h1>我的患者</h1>
+        </div>
+        
+        <div class="search-bar">
+            <div class="search-input-wrapper">
+                <svg class="search-icon" viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+                    <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                </svg>
+                <input type="text" class="search-input" placeholder="搜索患者姓名..." id="search-input">
+            </div>
+        </div>
+        
+        <div class="filter-tabs" id="filter-tabs">
+            <div class="filter-tab active" data-filter="all">全部患者</div>
+            <div class="filter-tab" data-filter="recent">最近问诊</div>
+        </div>
+        
+        <div class="page-content" id="patient-list">
+            <!-- 患者列表动态渲染 -->
+        </div>
+        
+        <!-- 底部导航 -->
+        <div class="doctor-nav">
+            <div class="doctor-nav-item" onclick="navigateTo('dashboard')">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                    <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+                </svg>
+                <span>工作台</span>
+            </div>
+            <div class="doctor-nav-item active">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                    <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+                </svg>
+                <span>患者</span>
+            </div>
+            <div class="doctor-nav-item" onclick="navigateTo('prescription')">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                    <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+                </svg>
+                <span>处方</span>
+            </div>
+            <div class="doctor-nav-item" onclick="navigateTo('statistics')">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                    <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/>
+                </svg>
+                <span>统计</span>
+            </div>
+            <div class="doctor-nav-item" onclick="navigateTo('settings')">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                    <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                </svg>
+                <span>我的</span>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/mock-data.js"></script>
+    <script src="../js/avatar.js"></script>
+    <script>
+        // 模拟患者数据（与 patient-detail.html 保持一致）
+        const patients = [
+            {
+                id: 20001,
+                name: '张三',
+                avatar: 'https://i.pravatar.cc/150?img=1',
+                gender: '女',
+                age: 45,
+                lastVisit: '2026-05-10',
+                inquiryCount: 5,
+                description: '最近经常头疼，已经持续一周，伴有失眠症状。',
+                tags: ['高血压', '复诊']
+            },
+            {
+                id: 20002,
+                name: '李四',
+                avatar: 'https://i.pravatar.cc/150?img=5',
+                gender: '男',
+                age: 38,
+                lastVisit: '2026-05-09',
+                inquiryCount: 3,
+                description: '高血压病史，想咨询用药调整',
+                tags: ['头疼', '失眠']
+            },
+            {
+                id: 20003,
+                name: '王五',
+                avatar: 'https://i.pravatar.cc/150?img=8',
+                gender: '女',
+                age: 52,
+                lastVisit: '2026-05-08',
+                inquiryCount: 12,
+                description: '心悸、胸闷，体检心电图异常',
+                tags: ['冠心病', '慢病管理']
+            },
+            {
+                id: 20004,
+                name: '赵六',
+                avatar: 'https://i.pravatar.cc/150?img=12',
+                gender: '男',
+                age: 28,
+                lastVisit: '2026-05-07',
+                inquiryCount: 1,
+                description: '体检发现心电图异常，无明显不适症状。',
+                tags: ['心电图异常', '初诊']
+            },
+            {
+                id: 20005,
+                name: '孙七',
+                avatar: 'https://i.pravatar.cc/150?img=15',
+                gender: '男',
+                age: 55,
+                lastVisit: '2026-05-06',
+                inquiryCount: 8,
+                description: '糖尿病合并高血压，长期用药管理。',
+                tags: ['糖尿病', '高血压', '慢病管理']
+            }
+        ];
+
+        let currentFilter = 'all';
+
+        // 渲染患者列表
+        function renderPatientList() {
+            const container = document.getElementById('patient-list');
+            let filteredPatients = patients;
+
+            if (currentFilter === 'recent') {
+                filteredPatients = patients.slice(0, 3);
+            }
+
+            if (filteredPatients.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                        </svg>
+                        <p>暂无符合条件的患者</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = filteredPatients.map(patient => `
+                <div class="patient-card" onclick="goToPatientDetail(${patient.id})">
+                    <div class="patient-avatar">
+                        <img src="${patient.avatar}" alt="${patient.name}" onerror="this.src=generateAvatar('${patient.name}')">
+                    </div>
+                    <div class="patient-info">
+                        <div class="patient-name">${patient.name}
+                            <span style="font-size: 12px; color: var(--text-secondary); font-weight: normal;">
+                                ${patient.gender} ${patient.age}岁
+                            </span>
+                        </div>
+                        <div class="patient-desc">${patient.description}</div>
+                        <div class="patient-footer">
+                            <span class="patient-time">最后问诊: ${patient.lastVisit}</span>
+                            <span class="inquiry-count">共${patient.inquiryCount}次问诊</span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 跳转到患者详情
+        function goToPatientDetail(patientId) {
+            window.location.href = `patient-detail.html?id=${patientId}`;
+        }
+
+        // 页面导航
+        function navigateTo(page) {
+            switch (page) {
+                case 'dashboard':
+                    window.location.href = 'index.html';
+                    break;
+                case 'prescription':
+                    window.location.href = 'prescription.html';
+                    break;
+                case 'statistics':
+                    window.location.href = 'statistics.html';
+                    break;
+                case 'settings':
+                    window.location.href = 'settings.html';
+                    break;
+            }
+        }
+
+        // 筛选标签点击
+        document.getElementById('filter-tabs').addEventListener('click', function(e) {
+            if (e.target.classList.contains('filter-tab')) {
+                document.querySelectorAll('.filter-tab').forEach(tab => tab.classList.remove('active'));
+                e.target.classList.add('active');
+                currentFilter = e.target.dataset.filter;
+                renderPatientList();
+            }
+        });
+
+        // 搜索功能
+        document.getElementById('search-input').addEventListener('input', function(e) {
+            const keyword = e.target.value.toLowerCase();
+            const container = document.getElementById('patient-list');
+            const filteredPatients = patients.filter(p => p.name.toLowerCase().includes(keyword));
+            
+            if (filteredPatients.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                        </svg>
+                        <p>未找到匹配的患者</p>
+                    </div>
+                `;
+            } else {
+                container.innerHTML = filteredPatients.map(patient => `
+                    <div class="patient-card" onclick="goToPatientDetail(${patient.id})">
+                        <div class="patient-avatar">
+                            <img src="${patient.avatar}" alt="${patient.name}" onerror="this.src=generateAvatar('${patient.name}')">
+                        </div>
+                        <div class="patient-info">
+                            <div class="patient-name">${patient.name}
+                                <span style="font-size: 12px; color: var(--text-secondary); font-weight: normal;">
+                                    ${patient.gender} ${patient.age}岁
+                                </span>
+                            </div>
+                            <div class="patient-desc">${patient.description}</div>
+                            <div class="patient-footer">
+                                <span class="patient-time">最后问诊: ${patient.lastVisit}</span>
+                                <span class="inquiry-count">共${patient.inquiryCount}次问诊</span>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        });
+
+        // 页面加载时渲染
+        renderPatientList();
+    </script>
+</body>
+</html>

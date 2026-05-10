@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>我的处方 - 在线问诊平台</title>
+    <link rel="stylesheet" href="../css/common.css">
+    <link rel="stylesheet" href="../css/patient.css">
+    <style>
+        .prescription-list-item {
+            background: var(--bg-color);
+            border-radius: var(--radius-md);
+            margin: 16px;
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .prescription-list-header {
+            padding: 12px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--bg-secondary);
+        }
+
+        .prescription-list-doctor {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .prescription-list-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: var(--radius-full);
+            overflow: hidden;
+        }
+
+        .prescription-list-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .prescription-list-name {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .prescription-list-title {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .prescription-list-status {
+            font-size: 13px;
+            padding: 4px 10px;
+            border-radius: var(--radius-full);
+        }
+
+        .prescription-list-status.audit {
+            background: var(--warning-bg);
+            color: var(--warning-color);
+        }
+
+        .prescription-list-status.pass {
+            background: var(--success-bg);
+            color: var(--success-color);
+        }
+
+        .prescription-list-status.reject {
+            background: var(--error-bg);
+            color: var(--error-color);
+        }
+
+        .prescription-list-body {
+            padding: 12px 16px;
+        }
+
+        .prescription-list-diagnosis {
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .prescription-list-drugs {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .prescription-list-footer {
+            padding: 12px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid var(--bg-secondary);
+        }
+
+        .prescription-list-info {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .prescription-list-price {
+            font-size: 16px;
+            color: var(--error-color);
+            font-weight: 600;
+        }
+
+        .prescription-list-price small {
+            font-size: 12px;
+            font-weight: normal;
+        }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <!-- 导航栏 -->
+        <div class="navbar">
+            <div class="navbar-left">
+                <a href="home.html" class="navbar-icon">
+                    <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                        <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+                    </svg>
+                </a>
+            </div>
+            <div class="navbar-title">我的处方</div>
+            <div class="navbar-right"></div>
+        </div>
+
+        <!-- 标签页 -->
+        <div class="tabs" style="position: fixed; top: var(--nav-height); left: 0; right: 0; z-index: 10;">
+            <div class="tab active" data-status="">全部</div>
+            <div class="tab" data-status="1">待审核</div>
+            <div class="tab" data-status="2">审核通过</div>
+            <div class="tab" data-status="3">审核拒绝</div>
+        </div>
+
+        <!-- 处方列表 -->
+        <div class="content" id="prescription-list" style="padding-top: calc(var(--nav-height) + 48px);">
+            <!-- 动态渲染 -->
+        </div>
+
+        <!-- 底部导航 -->
+        <div class="tab-bar">
+            <div class="tab-item" onclick="goTo('home.html')">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                    <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+                </svg>
+                <span>首页</span>
+            </div>
+            <div class="tab-item" onclick="goTo('doctor-list.html')">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                    <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+                </svg>
+                <span>问诊</span>
+            </div>
+            <div class="tab-item" onclick="goTo('order-list.html')">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                    <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+                </svg>
+                <span>订单</span>
+            </div>
+            <div class="tab-item" onclick="goTo('profile.html')">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                    <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                </svg>
+                <span>我的</span>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/mock-data.js"></script>
+    <script>
+        // 模拟处方数据
+        const prescriptions = [
+            {
+                id: 60001,
+                no: 'RX202605100000001',
+                doctor: { name: '王建国', title: '主任医师', avatar: 'https://i.pravatar.cc/150?img=1' },
+                diagnosis: '原发性高血压',
+                drugs: ['硝苯地平缓释片 x 2盒', '缬沙坦胶囊 x 1盒'],
+                status: 2,
+                statusText: '审核通过',
+                statusClass: 'pass',
+                createdAt: '2026-05-10 11:00',
+                totalAmount: 110.00,
+                validStartTime: '2026-05-10',
+                validEndTime: '2026-05-17'
+            },
+            {
+                id: 60002,
+                no: 'RX202605080000001',
+                doctor: { name: '李秀芳', title: '副主任医师', avatar: 'https://i.pravatar.cc/150?img=5' },
+                diagnosis: '急性胃炎',
+                drugs: ['奥美拉唑肠溶胶囊 x 2盒'],
+                status: 1,
+                statusText: '审核中',
+                statusClass: 'audit',
+                createdAt: '2026-05-08 14:30',
+                totalAmount: 56.00,
+                validStartTime: '2026-05-08',
+                validEndTime: '2026-05-15'
+            }
+        ];
+
+        let currentStatus = '';
+
+        // 渲染处方列表
+        function renderPrescriptions() {
+            const container = document.getElementById('prescription-list');
+            let list = prescriptions;
+            
+            if (currentStatus) {
+                list = prescriptions.filter(p => p.status == currentStatus);
+            }
+
+            if (list.length === 0) {
+                container.innerHTML = `
+                    <div class="empty">
+                        <div class="empty-icon">
+                            <svg viewBox="0 0 24 24" width="120" height="120" fill="currentColor">
+                                <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+                            </svg>
+                        </div>
+                        <div class="empty-title">暂无处方</div>
+                        <div class="empty-desc">发起问诊后可查看处方</div>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = list.map(prescription => `
+                <div class="prescription-list-item" onclick="goTo('prescription-detail.html?id=${prescription.id}')">
+                    <div class="prescription-list-header">
+                        <div class="prescription-list-doctor">
+                            <div class="prescription-list-avatar">
+                                <img src="${prescription.doctor.avatar}" alt="">
+                            </div>
+                            <div>
+                                <div class="prescription-list-name">${prescription.doctor.name}</div>
+                                <div class="prescription-list-title">${prescription.doctor.title}</div>
+                            </div>
+                        </div>
+                        <span class="prescription-list-status ${prescription.statusClass}">${prescription.statusText}</span>
+                    </div>
+                    <div class="prescription-list-body">
+                        <div class="prescription-list-diagnosis">诊断：${prescription.diagnosis}</div>
+                        <div class="prescription-list-drugs">药品：${prescription.drugs.join('、')}</div>
+                    </div>
+                    <div class="prescription-list-footer">
+                        <div class="prescription-list-info">
+                            <div>${prescription.createdAt}</div>
+                            <div>有效期：${prescription.validStartTime} 至 ${prescription.validEndTime}</div>
+                        </div>
+                        <div class="prescription-list-price">
+                            <small>¥</small>${prescription.totalAmount.toFixed(2)}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 标签页切换
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                currentStatus = this.dataset.status;
+                renderPrescriptions();
+            });
+        });
+
+        // 初始化
+        renderPrescriptions();
+    </script>
+</body>
+</html>

@@ -1,0 +1,1633 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>开具处方 - 医生端</title>
+    <link rel="stylesheet" href="../css/common.css">
+    <link rel="stylesheet" href="../css/doctor.css">
+    <script src="../js/avatar.js"></script>
+    <style>
+        body {
+            background: var(--bg-secondary);
+            overflow: hidden;
+            height: 100vh;
+        }
+        .page {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .page-header {
+            flex-shrink: 0;
+            background: var(--bg-color);
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid var(--bg-secondary);
+        }
+        .page-header h1 {
+            flex: 1;
+            font-size: 18px;
+            font-weight: 600;
+        }
+        .prescription-form {
+            padding: 16px;
+        }
+        .form-section {
+            background: var(--bg-color);
+            border-radius: var(--radius-md);
+            margin-bottom: 12px;
+            overflow: hidden;
+        }
+        .form-section-header {
+            padding: 12px 16px;
+            background: var(--bg-secondary);
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+        .form-section-content {
+            padding: 16px;
+        }
+        .form-item {
+            margin-bottom: 16px;
+        }
+        .form-item:last-child {
+            margin-bottom: 0;
+        }
+        .form-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+            display: block;
+        }
+        .form-input {
+            width: 100%;
+            height: 44px;
+            padding: 0 12px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            font-size: 14px;
+            background: var(--bg-color);
+        }
+        .form-textarea {
+            width: 100%;
+            min-height: 80px;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            font-size: 14px;
+            background: var(--bg-color);
+            resize: vertical;
+        }
+        .patient-card {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: var(--bg-secondary);
+            border-radius: var(--radius-sm);
+        }
+        .patient-card-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: var(--radius-full);
+            overflow: hidden;
+        }
+        .patient-card-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .patient-card-info {
+            flex: 1;
+        }
+        .patient-card-name {
+            font-size: 15px;
+            font-weight: 600;
+        }
+        .patient-card-meta {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+        .diagnosis-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .diagnosis-tag {
+            padding: 8px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 18px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .diagnosis-tag:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+        .diagnosis-tag.selected {
+            background: var(--primary-bg);
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+        .drug-item {
+            display: flex;
+            gap: 12px;
+            padding: 12px;
+            background: var(--bg-secondary);
+            border-radius: var(--radius-sm);
+            margin-bottom: 12px;
+        }
+        .drug-item:last-child {
+            margin-bottom: 0;
+        }
+        .drug-icon {
+            width: 44px;
+            height: 44px;
+            background: var(--primary-bg);
+            color: var(--primary-color);
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .drug-info {
+            flex: 1;
+        }
+        .drug-name {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        .drug-spec {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+        .drug-delete {
+            color: var(--danger-color);
+            padding: 4px;
+        }
+        .add-drug-btn {
+            width: 100%;
+            height: 44px;
+            border: 1px dashed var(--border-color);
+            border-radius: var(--radius-sm);
+            background: transparent;
+            color: var(--primary-color);
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+        .add-drug-btn:active {
+            background: var(--primary-bg);
+        }
+        .usage-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px;
+            background: var(--bg-secondary);
+            border-radius: var(--radius-sm);
+            margin-bottom: 8px;
+        }
+        .usage-item select {
+            flex: 1;
+            height: 36px;
+            padding: 0 8px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            font-size: 13px;
+            background: var(--bg-color);
+        }
+        .usage-item input {
+            width: 60px;
+            height: 36px;
+            padding: 0 8px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            font-size: 13px;
+            text-align: center;
+        }
+        .template-card {
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            margin-bottom: 8px;
+            cursor: pointer;
+        }
+        .template-card:hover {
+            border-color: var(--primary-color);
+        }
+        .template-card.selected {
+            border-color: var(--primary-color);
+            background: var(--primary-bg);
+        }
+        .template-name {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        .template-desc {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+        .prescription-preview {
+            background: #fff;
+            border: 2px solid var(--primary-color);
+            border-radius: var(--radius-md);
+            padding: 16px;
+            margin-top: 16px;
+        }
+        .prescription-title {
+            text-align: center;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .prescription-info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+        }
+        .prescription-drug-list {
+            margin: 12px 0;
+        }
+        .prescription-drug-item {
+            display: flex;
+            padding: 8px 0;
+            border-bottom: 1px dashed var(--border-color);
+            font-size: 13px;
+        }
+        .prescription-drug-name {
+            flex: 1;
+        }
+        .prescription-drug-usage {
+            width: 200px;
+            text-align: right;
+            color: var(--text-secondary);
+        }
+        .prescription-signature {
+            margin-top: 16px;
+            text-align: right;
+            font-size: 13px;
+        }
+        .submit-section {
+            padding: 16px;
+            background: var(--bg-color);
+            box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.06);
+            flex-shrink: 0;
+            display: flex;
+            gap: 12px;
+        }
+        .submit-btn {
+            width: 100%;
+            height: 48px;
+            background: var(--success-color);
+            color: #fff;
+            border: none;
+            border-radius: var(--radius-md);
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .submit-btn:disabled {
+            background: var(--text-disabled);
+            cursor: not-allowed;
+        }
+        .page-content {
+            flex: 1;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior: contain;
+        }
+        .doctor-nav {
+            background: var(--bg-color);
+            display: flex;
+            padding-bottom: 34px;
+            box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.06);
+            flex-shrink: 0;
+        }
+        .doctor-nav-item {
+            flex: 1;
+            padding: 10px 0;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            color: var(--text-secondary);
+            font-size: 12px;
+        }
+        .doctor-nav-item.active {
+            color: var(--success-color);
+        }
+        .search-drug-input {
+            position: relative;
+        }
+        .search-drug-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 10;
+            display: none;
+        }
+        .search-drug-results.show {
+            display: block;
+        }
+        .search-drug-item {
+            padding: 12px;
+            border-bottom: 1px solid var(--bg-secondary);
+            cursor: pointer;
+        }
+        .search-drug-item:hover {
+            background: var(--bg-secondary);
+        }
+        .search-drug-item:last-child {
+            border-bottom: none;
+        }
+        .diagnosis-search-wrapper {
+            position: relative;
+        }
+        .diagnosis-search-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 10;
+            display: none;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .diagnosis-search-results.show {
+            display: block;
+        }
+        .diagnosis-search-item {
+            padding: 12px;
+            border-bottom: 1px solid var(--bg-secondary);
+            cursor: pointer;
+        }
+        .diagnosis-search-item:hover {
+            background: var(--bg-secondary);
+        }
+        .diagnosis-search-item:last-child {
+            border-bottom: none;
+        }
+        .diagnosis-code {
+            font-size: 11px;
+            color: var(--text-disabled);
+            margin-left: 8px;
+        }
+        .selected-diagnosis-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+        .selected-diagnosis-tag {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 6px 12px;
+            background: var(--primary-bg);
+            border: 1px solid var(--primary-color);
+            border-radius: 18px;
+            font-size: 13px;
+            color: var(--primary-color);
+        }
+        .selected-diagnosis-tag .remove-tag {
+            cursor: pointer;
+            font-size: 16px;
+            line-height: 1;
+        }
+        .drug-usage-panel {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-sm);
+            margin-bottom: 12px;
+            overflow: hidden;
+        }
+        .drug-usage-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background: var(--primary-bg);
+            border-bottom: 1px solid var(--border-color);
+        }
+        .drug-usage-header h4 {
+            font-size: 14px;
+            font-weight: 600;
+            margin: 0;
+            color: var(--primary-color);
+        }
+        .drug-usage-body {
+            padding: 12px;
+        }
+        .usage-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 8px;
+            align-items: center;
+        }
+        .usage-row:last-child {
+            margin-bottom: 0;
+        }
+        .usage-row select, .usage-row input {
+            height: 36px;
+            padding: 0 8px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            font-size: 13px;
+            background: var(--bg-color);
+        }
+        .usage-row select {
+            flex: 1;
+        }
+        .usage-row input {
+            width: 60px;
+            text-align: center;
+        }
+        .signature-panel {
+            padding: 16px;
+            background: var(--bg-color);
+            border-radius: var(--radius-md);
+            margin-bottom: 12px;
+        }
+        .signature-canvas-wrapper {
+            border: 2px dashed var(--border-color);
+            border-radius: var(--radius-sm);
+            padding: 12px;
+            text-align: center;
+            cursor: pointer;
+            position: relative;
+        }
+        .signature-canvas-wrapper:hover {
+            border-color: var(--primary-color);
+        }
+        .signature-canvas-wrapper.signed {
+            border-style: solid;
+            border-color: var(--primary-color);
+        }
+        #signatureCanvas {
+            max-width: 100%;
+            touch-action: none;
+        }
+        .signature-actions {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            display: flex;
+            gap: 4px;
+        }
+        .signature-action-btn {
+            padding: 4px 8px;
+            font-size: 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .signature-clear-btn {
+            background: var(--danger-bg);
+            color: var(--danger-color);
+        }
+        .signature-tip {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 8px;
+        }
+        .draft-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            background: var(--warning-bg);
+            color: var(--warning-color);
+            border-radius: 4px;
+            font-size: 11px;
+            margin-left: 8px;
+        }
+        .api-loading {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+        .spinner {
+            width: 14px;
+            height: 14px;
+            border: 2px solid var(--border-color);
+            border-top-color: var(--primary-color);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <div class="page-header">
+            <a href="index.html" class="back-btn">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                    <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+                </svg>
+            </a>
+            <h1>开具处方<span class="draft-badge" id="header-draft-badge" style="display: none;">草稿</span></h1>
+            <button class="btn btn-text" onclick="handleBack()">返回</button>
+        </div>
+        
+        <div class="page-content">
+            <div class="prescription-form">
+                <!-- 患者信息 -->
+                <div class="form-section">
+                    <div class="form-section-header">患者信息</div>
+                    <div class="form-section-content">
+                        <div class="patient-card">
+                        <div class="patient-card-avatar">
+                            <img src="https://i.pravatar.cc/150?img=1" alt="张三" onerror="this.src=generateAvatar('张三')">
+                        </div>
+                        <div class="patient-card-info">
+                            <div class="patient-card-name">张三</div>
+                                <div class="patient-card-meta">女 45岁 | 高血压病史3年</div>
+                            </div>
+                            <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" style="color: var(--text-disabled);">
+                                <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 主诉与诊断 -->
+                <div class="form-section">
+                    <div class="form-section-header">主诉与诊断</div>
+                    <div class="form-section-content">
+                        <div class="form-item">
+                            <label class="form-label">主诉</label>
+                            <textarea class="form-textarea" id="chief-complaint" placeholder="请输入患者主诉...">血压控制不稳定，波动较大，伴头晕症状。</textarea>
+                        </div>
+                        <div class="form-item">
+                            <label class="form-label">临床诊断</label>
+                            <div class="selected-diagnosis-tags" id="selected-diagnosis-tags">
+                                <!-- 已选诊断标签 -->
+                            </div>
+                            <div class="diagnosis-search-wrapper">
+                                <input type="text" class="form-input" placeholder="搜索ICD10诊断..." id="diagnosis-search-input" autocomplete="off">
+                                <div class="diagnosis-search-results" id="diagnosis-search-results">
+                                    <!-- 搜索结果 -->
+                                </div>
+                            </div>
+                            <div id="custom-diagnosis-wrapper" style="display: none; margin-top: 8px;">
+                                <input type="text" class="form-input" placeholder="输入自定义诊断..." id="custom-diagnosis-input">
+                                <button class="btn btn-primary btn-sm" style="margin-top: 8px;" onclick="addCustomDiagnosis()">添加</button>
+                            </div>
+                            <button class="btn btn-text btn-sm" onclick="toggleCustomDiagnosis()" style="margin-top: 8px;">+ 自定义诊断</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 处方模板 -->
+                <div class="form-section">
+                    <div class="form-section-header">处方模板</div>
+                    <div class="form-section-content">
+                        <div class="template-card selected" onclick="selectTemplate(this)">
+                            <div class="template-name">高血压调药方案</div>
+                            <div class="template-desc">适用于血压控制不佳患者的用药调整</div>
+                        </div>
+                        <div class="template-card" onclick="selectTemplate(this)">
+                            <div class="template-name">常规降压方案</div>
+                            <div class="template-desc">适用于血压稳定患者的长期维持治疗</div>
+                        </div>
+                        <div class="template-card" onclick="selectTemplate(this)">
+                            <div class="template-name">空白处方</div>
+                            <div class="template-desc">从零开始开具处方</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 药品清单 -->
+                <div class="form-section">
+                    <div class="form-section-header">药品清单 <span id="drug-count" style="font-weight: normal; font-size: 12px;">(0个)</span></div>
+                    <div class="form-section-content">
+                        <div id="drug-list">
+                            <!-- 药品项动态渲染 -->
+                        </div>
+                        <button class="add-drug-btn" onclick="showDrugSearch()">
+                            <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+                                <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+                            </svg>
+                            添加药品
+                        </button>
+                        
+                        <!-- 药品搜索弹窗 -->
+                        <div id="drug-search-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 100;">
+                            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 90%; max-width: 400px; background: var(--bg-color); border-radius: var(--radius-md); padding: 16px; max-height: 80vh; overflow-y: auto;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                                    <h3 style="font-size: 16px;">添加药品</h3>
+                                    <button onclick="closeDrugSearch()" style="background: none; border: none; font-size: 24px; color: var(--text-secondary);">×</button>
+                                </div>
+                                <div class="search-drug-input">
+                                    <input type="text" class="form-input" placeholder="搜索药品名称或首字母..." id="drug-search-input" autocomplete="off">
+                                    <div id="drug-search-loading" class="api-loading" style="display: none;">
+                                        <div class="spinner"></div>
+                                        <span>搜索中...</span>
+                                    </div>
+                                </div>
+                                <div id="drug-search-results" style="margin-top: 12px; max-height: 300px; overflow-y: auto;">
+                                    <!-- 搜索结果 -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 用法用量 -->
+                <div class="form-section" id="usage-section" style="display: none;">
+                    <div class="form-section-header">用法用量</div>
+                    <div class="form-section-content" id="usage-list">
+                        <!-- 每个药品的用法用量独立设置 -->
+                    </div>
+                </div>
+                
+                <!-- 处方预览 -->
+                <div class="prescription-preview">
+                    <div class="prescription-title">电子处方笺 <span class="draft-badge" id="draft-badge" style="display: none;">草稿</span></div>
+                    <div class="prescription-info">
+                        <span>处方号：<span id="prescription-no">待生成</span></span>
+                        <span>日期：2026-05-10</span>
+                    </div>
+                    <div class="patient-info" style="font-size: 13px; margin-bottom: 8px;">
+                        <strong>患者：</strong><span id="preview-patient">张三 | 女 | 45岁</span>
+                    </div>
+                    <div style="font-size: 13px; margin-bottom: 12px;">
+                        <strong>主诉：</strong><span class="chief-complaint-text" id="preview-chief-complaint">血压控制不稳定，波动较大，伴头晕症状。</span>
+                    </div>
+                    <div style="font-size: 13px; margin-bottom: 12px;">
+                        <strong>诊断：</strong><span class="diagnosis-text" id="preview-diagnosis">待选择</span>
+                    </div>
+                    <div class="prescription-drug-list" id="preview-drug-list">
+                        <div style="font-size: 13px; color: var(--text-secondary); padding: 12px 0;">暂无药品</div>
+                    </div>
+                    <div style="font-size: 13px; margin-bottom: 16px;">
+                        <strong>备注：</strong><span id="preview-remark">-</span>
+                    </div>
+                    <div class="prescription-signature" id="signature-display">
+                        <div>医师：王建国</div>
+                        <div style="color: var(--text-secondary);">主任医师 | 心内科</div>
+                    </div>
+                </div>
+                
+                <!-- 备注 -->
+                <div class="form-section">
+                    <div class="form-section-header">处方备注</div>
+                    <div class="form-section-content">
+                        <textarea class="form-textarea" id="prescription-remark" placeholder="输入用药注意事项，如：注意监测血压变化、如有不适及时复诊等..."></textarea>
+                    </div>
+                </div>
+                
+                <!-- 医师签名 -->
+                <div class="form-section">
+                    <div class="form-section-header">医师签名</div>
+                    <div class="form-section-content">
+                        <div class="signature-panel">
+                            <div class="signature-canvas-wrapper" id="signature-wrapper" onclick="clearSignature()">
+                                <canvas id="signatureCanvas" width="320" height="120"></canvas>
+                                <div class="signature-actions">
+                                    <button class="signature-action-btn signature-clear-btn" onclick="event.stopPropagation(); clearSignature()">清除</button>
+                                </div>
+                                <div id="signature-placeholder" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: var(--text-disabled); font-size: 13px;">
+                                    点击此处签名
+                                </div>
+                            </div>
+                            <div class="signature-tip">
+                                <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" style="vertical-align: middle; margin-right: 4px;">
+                                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+                                </svg>
+                                请在签名区手写签名，或点击清除重新签名
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 提交按钮 -->
+        <div class="submit-section">
+            <button class="btn btn-outline" style="flex: 1; height: 48px;" onclick="saveDraft()">保存草稿</button>
+            <button class="submit-btn" style="flex: 2;" onclick="submitPrescription()">提交处方</button>
+        </div>
+        
+        <!-- 底部导航 -->
+        <div class="doctor-nav">
+            <div class="doctor-nav-item" onclick="location.href='index.html'">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                    <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+                </svg>
+                <span>工作台</span>
+            </div>
+            <div class="doctor-nav-item" onclick="location.href='patients.html'">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                    <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+                </svg>
+                <span>患者</span>
+            </div>
+            <div class="doctor-nav-item active">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                    <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+                </svg>
+                <span>处方</span>
+            </div>
+            <div class="doctor-nav-item" onclick="location.href='statistics.html'">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                    <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/>
+                </svg>
+                <span>统计</span>
+            </div>
+            <div class="doctor-nav-item" onclick="location.href='settings.html'">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                    <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                </svg>
+                <span>我的</span>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/mock-data.js"></script>
+    <script>
+        // ========================================
+        // 处方页面完整重构
+        // ========================================
+
+        // 获取URL参数
+        function getUrlParam(name) {
+            const params = new URLSearchParams(window.location.search);
+            return params.get(name);
+        }
+
+        // 患者数据
+        const patientsInfo = {
+            20001: { name: '张三', avatar: 'https://i.pravatar.cc/150?img=1', gender: '女', age: 45, condition: '高血压病史3年' },
+            20002: { name: '李四', avatar: 'https://i.pravatar.cc/150?img=5', gender: '男', age: 38, condition: '高血压病史1年' },
+            20003: { name: '王五', avatar: 'https://i.pravatar.cc/150?img=8', gender: '女', age: 52, condition: '冠心病史2年' },
+            20004: { name: '赵六', avatar: 'https://i.pravatar.cc/150?img=12', gender: '男', age: 28, condition: '糖尿病史2年' },
+            20005: { name: '孙七', avatar: 'https://i.pravatar.cc/150?img=15', gender: '男', age: 55, condition: '高血脂病史3年' }
+        };
+
+        // 当前患者ID
+        let currentPatientId = getUrlParam('patientId') || '20001';
+        let currentPatient = patientsInfo[currentPatientId] || patientsInfo['20001'];
+
+        // ICD10诊断数据（模拟）
+        const icd10Data = [
+            { code: 'I10', name: '高血压', category: '循环系统疾病' },
+            { code: 'I10.x00', name: '原发性高血压', category: '循环系统疾病' },
+            { code: 'I10.x01', name: '继发性高血压', category: '循环系统疾病' },
+            { code: 'R51', name: '头痛', category: '症状与体征' },
+            { code: 'R42', name: '头晕和眩晕', category: '症状与体征' },
+            { code: 'G43', name: '偏头痛', category: '神经系统疾病' },
+            { code: 'G44', name: '其他头痛综合征', category: '神经系统疾病' },
+            { code: 'E11', name: '2型糖尿病', category: '内分泌疾病' },
+            { code: 'E11.9', name: '2型糖尿病无并发症', category: '内分泌疾病' },
+            { code: 'I25', name: '慢性缺血性心脏病', category: '循环系统疾病' },
+            { code: 'I25.1', name: '动脉粥样硬化性心脏病', category: '循环系统疾病' },
+            { code: 'G47', name: '睡眠障碍', category: '神经系统疾病' },
+            { code: 'G47.0', name: '失眠症', category: '神经系统疾病' },
+            { code: 'E78', name: '脂蛋白代谢紊乱', category: '内分泌疾病' },
+            { code: 'E78.0', name: '高胆固醇血症', category: '内分泌疾病' },
+            { code: 'E78.1', name: '高甘油三酯血症', category: '内分泌疾病' },
+            { code: 'J06', name: '急性上呼吸道感染', category: '呼吸系统疾病' },
+            { code: 'J06.9', name: '上呼吸道感染', category: '呼吸系统疾病' },
+            { code: 'M79', name: '其他软组织疾患', category: '肌肉骨骼系统' },
+            { code: 'R05', name: '咳嗽', category: '症状与体征' },
+            { code: 'R50', name: '发热', category: '症状与体征' },
+            { code: 'K29', name: '胃炎', category: '消化系统疾病' },
+            { code: 'K29.5', name: '慢性胃炎', category: '消化系统疾病' }
+        ];
+
+        // 药品数据（模拟后端API返回）
+        const drugsData = [
+            { id: 1, name: '苯磺酸氨氯地平片', spec: '5mg×7片/盒', price: 28.00, unit: '盒' },
+            { id: 2, name: '天麻素片', spec: '50mg×30片/盒', price: 18.50, unit: '盒' },
+            { id: 3, name: '硝苯地平缓释片', spec: '20mg×30片/盒', price: 32.00, unit: '盒' },
+            { id: 4, name: '复方丹参片', spec: '0.3g×60片/瓶', price: 12.00, unit: '瓶' },
+            { id: 5, name: '阿司匹林肠溶片', spec: '100mg×30片/盒', price: 15.00, unit: '盒' },
+            { id: 6, name: '缬沙坦胶囊', spec: '80mg×7粒/盒', price: 38.00, unit: '盒' },
+            { id: 7, name: '酒石酸美托洛尔片', spec: '25mg×20片/盒', price: 8.50, unit: '盒' },
+            { id: 8, name: '厄贝沙坦片', spec: '150mg×7片/盒', price: 28.00, unit: '盒' },
+            { id: 9, name: '盐酸二甲双胍片', spec: '0.5g×20片/盒', price: 18.00, unit: '盒' },
+            { id: 10, name: '格列齐特缓释片', spec: '30mg×30片/盒', price: 35.00, unit: '盒' },
+            { id: 11, name: '瑞舒伐他汀钙片', spec: '10mg×7片/盒', price: 42.00, unit: '盒' },
+            { id: 12, name: '氯沙坦钾片', spec: '50mg×7片/盒', price: 32.00, unit: '盒' }
+        ];
+
+        // 处方模板数据
+        const templatesData = {
+            '高血压调药方案': [
+                { id: 1, name: '苯磺酸氨氯地平片', spec: '5mg×7片/盒', usage: { method: '口服', frequency: '每日2次', quantity: '1', unit: '片' } },
+                { id: 2, name: '天麻素片', spec: '50mg×30片/盒', usage: { method: '口服', frequency: '每日3次', quantity: '2', unit: '片' } }
+            ],
+            '常规降压方案': [
+                { id: 1, name: '苯磺酸氨氯地平片', spec: '5mg×7片/盒', usage: { method: '口服', frequency: '每日1次', quantity: '1', unit: '片' } },
+                { id: 4, name: '复方丹参片', spec: '0.3g×60片/瓶', usage: { method: '口服', frequency: '每日3次', quantity: '3', unit: '片' } }
+            ],
+            '空白处方': []
+        };
+
+        // 当前处方药品（包含每个药品的独立用法用量）
+        let prescriptionDrugs = [];
+
+        // 已选诊断
+        let selectedDiagnoses = [];
+
+        // 签名相关
+        let signatureCanvas, signatureCtx;
+        let isDrawing = false;
+        let hasSignature = false;
+
+        // 处方号生成
+        function generatePrescriptionNo() {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const random = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+            return `RX${year}${month}${day}${random}`;
+        }
+
+        // ========================================
+        // 诊断搜索功能（ICD10）
+        // ========================================
+        function searchDiagnosis(keyword) {
+            if (!keyword.trim()) {
+                document.getElementById('diagnosis-search-results').classList.remove('show');
+                return;
+            }
+            
+            const results = icd10Data.filter(d => 
+                d.name.includes(keyword) || d.code.includes(keyword.toUpperCase())
+            );
+            
+            const container = document.getElementById('diagnosis-search-results');
+            
+            if (results.length === 0) {
+                container.innerHTML = '<div class="diagnosis-search-item" style="color: var(--text-secondary);">未找到相关诊断</div>';
+            } else {
+                container.innerHTML = results.slice(0, 10).map(d => `
+                    <div class="diagnosis-search-item" onclick="addDiagnosis('${d.code}', '${d.name}')">
+                        <div>${d.name} <span class="diagnosis-code">${d.code}</span></div>
+                        <div style="font-size: 11px; color: var(--text-secondary);">${d.category}</div>
+                    </div>
+                `).join('');
+            }
+            
+            container.classList.add('show');
+        }
+
+        function addDiagnosis(code, name) {
+            if (!selectedDiagnoses.find(d => d.code === code)) {
+                selectedDiagnoses.push({ code, name });
+                renderSelectedDiagnoses();
+                updatePreview();
+            }
+            document.getElementById('diagnosis-search-results').classList.remove('show');
+            document.getElementById('diagnosis-search-input').value = '';
+        }
+
+        function removeDiagnosis(code) {
+            selectedDiagnoses = selectedDiagnoses.filter(d => d.code !== code);
+            renderSelectedDiagnoses();
+            updatePreview();
+        }
+
+        function renderSelectedDiagnoses() {
+            const container = document.getElementById('selected-diagnosis-tags');
+            if (selectedDiagnoses.length === 0) {
+                container.innerHTML = '';
+            } else {
+                container.innerHTML = selectedDiagnoses.map(d => `
+                    <span class="selected-diagnosis-tag">
+                        ${d.name}
+                        <span class="remove-tag" onclick="removeDiagnosis('${d.code}')">×</span>
+                    </span>
+                `).join('');
+            }
+        }
+
+        function toggleCustomDiagnosis() {
+            const wrapper = document.getElementById('custom-diagnosis-wrapper');
+            wrapper.style.display = wrapper.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function addCustomDiagnosis() {
+            const input = document.getElementById('custom-diagnosis-input');
+            const value = input.value.trim();
+            if (value && !selectedDiagnoses.find(d => d.name === value)) {
+                selectedDiagnoses.push({ code: 'CUSTOM', name: value });
+                renderSelectedDiagnoses();
+                updatePreview();
+                input.value = '';
+            }
+        }
+
+        // ========================================
+        // 药品搜索功能（模拟API调用）
+        // ========================================
+        let searchTimeout = null;
+
+        function searchDrugsAPI(keyword) {
+            // 模拟API调用延迟
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    const results = drugsData.filter(d => 
+                        d.name.includes(keyword) || 
+                        d.spec.includes(keyword) ||
+                        pinyinMatch(d.name, keyword)
+                    );
+                    resolve(results);
+                }, 300);
+            });
+        }
+
+        // 简单的拼音匹配（实际项目中需要真实的拼音库）
+        function pinyinMatch(name, keyword) {
+            const pinyinMap = {
+                '苯': 'b', '磺': 'h', '酸': 's', '氨': 'a', '氯': 'l', '地': 'd', '平': 'p',
+                '天': 't', '麻': 'm', '素': 's', '片': 'p', '硝': 'x', '苯': 'b', '地': 'd',
+                '缓': 'h', '释': 's', '复': 'f', '方': 'f', '丹': 'd', '参': 'c', '阿': 'a',
+                '司': 's', '匹': 'p', '林': 'l', '肠': 'c', '溶': 'r', '缬': 'x', '沙': 's',
+                '坦': 't', '胶': 'j', '囊': 'n', '酒': 'j', '石': 's', '酸': 's', '美': 'm',
+                '托': 't', '洛': 'l', '尔': 'e', '盐': 'y', '厄': 'e', '贝': 'b', '盐': 'y',
+                '酸': 's', '二': 'e', '甲': 'j', '双': 's', '胍': 'g', '格': 'g', '列': 'l',
+                '齐': 'q', '特': 't', '瑞': 'r', '舒': 's', '伐': 'f', '他': 't', '汀': 't',
+                '钙': 'g', '氯': 'l', '钾': 'j'
+            };
+            let pinyin = '';
+            for (let char of name) {
+                pinyin += pinyinMap[char] || '';
+            }
+            return pinyin.includes(keyword.toLowerCase());
+        }
+
+        async function renderDrugSearchResults(keyword) {
+            const loadingEl = document.getElementById('drug-search-loading');
+            const container = document.getElementById('drug-search-results');
+            
+            if (!keyword.trim()) {
+                // 显示常用药品
+                container.innerHTML = '<div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 8px;">常用药品</div>' +
+                    drugsData.slice(0, 6).map(d => `
+                        <div class="search-drug-item" onclick="addDrug(${d.id})">
+                            <div style="display: flex; justify-content: space-between;">
+                                <div>
+                                    <div style="font-size: 14px; font-weight: 600;">${d.name}</div>
+                                    <div style="font-size: 12px; color: var(--text-secondary);">${d.spec}</div>
+                                </div>
+                                <div style="color: var(--success-color); font-size: 13px;">¥${d.price}</div>
+                            </div>
+                        </div>
+                    `).join('');
+                return;
+            }
+            
+            loadingEl.style.display = 'flex';
+            
+            try {
+                const results = await searchDrugsAPI(keyword);
+                loadingEl.style.display = 'none';
+                
+                if (results.length === 0) {
+                    container.innerHTML = '<div style="text-align: center; padding: 20px; color: var(--text-secondary);">未找到相关药品</div>';
+                } else {
+                    container.innerHTML = results.map(d => `
+                        <div class="search-drug-item" onclick="addDrug(${d.id})">
+                            <div style="display: flex; justify-content: space-between;">
+                                <div>
+                                    <div style="font-size: 14px; font-weight: 600;">${d.name}</div>
+                                    <div style="font-size: 12px; color: var(--text-secondary);">${d.spec}</div>
+                                </div>
+                                <div style="color: var(--success-color); font-size: 13px;">¥${d.price}</div>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+            } catch (error) {
+                loadingEl.style.display = 'none';
+                container.innerHTML = '<div style="text-align: center; padding: 20px; color: var(--danger-color);">搜索失败，请重试</div>';
+            }
+        }
+
+        function showDrugSearch() {
+            document.getElementById('drug-search-modal').style.display = 'block';
+            document.getElementById('drug-search-input').focus();
+            renderDrugSearchResults('');
+        }
+
+        function closeDrugSearch() {
+            document.getElementById('drug-search-modal').style.display = 'none';
+            document.getElementById('drug-search-input').value = '';
+        }
+
+        function addDrug(drugId) {
+            const drug = drugsData.find(d => d.id === drugId);
+            if (drug && !prescriptionDrugs.find(p => p.id === drugId)) {
+                prescriptionDrugs.push({
+                    id: drug.id,
+                    name: drug.name,
+                    spec: drug.spec,
+                    price: drug.price,
+                    usage: {
+                        method: '口服',
+                        frequency: '每日2次',
+                        quantity: '1',
+                        unit: '片'
+                    }
+                });
+                renderDrugList();
+                renderUsageList();
+                updatePreview();
+                showToast(`已添加 ${drug.name}`);
+            }
+            closeDrugSearch();
+        }
+
+        // ========================================
+        // 药品列表渲染
+        // ========================================
+        function renderDrugList() {
+            const container = document.getElementById('drug-list');
+            const countEl = document.getElementById('drug-count');
+            const usageSection = document.getElementById('usage-section');
+            
+            countEl.textContent = `(${prescriptionDrugs.length}个)`;
+            
+            if (prescriptionDrugs.length === 0) {
+                container.innerHTML = '<div style="text-align: center; padding: 20px; color: var(--text-secondary); font-size: 13px;">暂无药品，请添加</div>';
+                usageSection.style.display = 'none';
+            } else {
+                container.innerHTML = prescriptionDrugs.map((drug, index) => `
+                    <div class="drug-item">
+                        <div class="drug-icon">
+                            <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                                <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+                            </svg>
+                        </div>
+                        <div class="drug-info">
+                            <div class="drug-name">${drug.name}</div>
+                            <div class="drug-spec">${drug.spec} <span style="color: var(--success-color);">¥${drug.price}</span></div>
+                        </div>
+                        <button class="drug-delete" onclick="removeDrug(${index})">×</button>
+                    </div>
+                `).join('');
+                usageSection.style.display = 'block';
+            }
+        }
+
+        // ========================================
+        // 每个药品独立用法用量
+        // ========================================
+        function renderUsageList() {
+            const container = document.getElementById('usage-list');
+            
+            if (prescriptionDrugs.length === 0) {
+                container.innerHTML = '';
+                return;
+            }
+            
+            container.innerHTML = prescriptionDrugs.map((drug, index) => `
+                <div class="drug-usage-panel">
+                    <div class="drug-usage-header">
+                        <h4>${drug.name}</h4>
+                        <span style="font-size: 12px; color: var(--text-secondary);">${drug.spec}</span>
+                    </div>
+                    <div class="drug-usage-body">
+                        <div class="usage-row">
+                            <select onchange="updateDrugUsage(${index}, 'method', this.value)">
+                                <option value="口服" ${drug.usage.method === '口服' ? 'selected' : ''}>口服</option>
+                                <option value="含服" ${drug.usage.method === '含服' ? 'selected' : ''}>含服</option>
+                                <option value="外用" ${drug.usage.method === '外用' ? 'selected' : ''}>外用</option>
+                                <option value="舌下含服" ${drug.usage.method === '舌下含服' ? 'selected' : ''}>舌下含服</option>
+                                <option value="睡前服用" ${drug.usage.method === '睡前服用' ? 'selected' : ''}>睡前服用</option>
+                            </select>
+                            <select onchange="updateDrugUsage(${index}, 'frequency', this.value)">
+                                <option value="每日1次" ${drug.usage.frequency === '每日1次' ? 'selected' : ''}>每日1次</option>
+                                <option value="每日2次" ${drug.usage.frequency === '每日2次' ? 'selected' : ''}>每日2次</option>
+                                <option value="每日3次" ${drug.usage.frequency === '每日3次' ? 'selected' : ''}>每日3次</option>
+                                <option value="每晚1次" ${drug.usage.frequency === '每晚1次' ? 'selected' : ''}>每晚1次</option>
+                                <option value="必要时" ${drug.usage.frequency === '必要时' ? 'selected' : ''}>必要时</option>
+                            </select>
+                        </div>
+                        <div class="usage-row">
+                            <span style="font-size: 12px; color: var(--text-secondary);">每次</span>
+                            <input type="number" value="${drug.usage.quantity}" min="0.5" max="20" step="0.5" 
+                                   onchange="updateDrugUsage(${index}, 'quantity', this.value)">
+                            <select onchange="updateDrugUsage(${index}, 'unit', this.value)">
+                                <option value="片" ${drug.usage.unit === '片' ? 'selected' : ''}>片</option>
+                                <option value="粒" ${drug.usage.unit === '粒' ? 'selected' : ''}>粒</option>
+                                <option value="胶囊" ${drug.usage.unit === '胶囊' ? 'selected' : ''}>胶囊</option>
+                                <option value="袋" ${drug.usage.unit === '袋' ? 'selected' : ''}>袋</option>
+                                <option value="支" ${drug.usage.unit === '支' ? 'selected' : ''}>支</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateDrugUsage(index, field, value) {
+            prescriptionDrugs[index].usage[field] = value;
+            updatePreview();
+        }
+
+        function removeDrug(index) {
+            prescriptionDrugs.splice(index, 1);
+            renderDrugList();
+            renderUsageList();
+            updatePreview();
+            showToast('已删除药品');
+        }
+
+        // ========================================
+        // 处方预览更新
+        // ========================================
+        function updatePreview() {
+            // 更新处方号
+            const prescriptionNo = generatePrescriptionNo();
+            document.getElementById('prescription-no').textContent = prescriptionNo;
+            
+            // 更新日期
+            const now = new Date();
+            document.querySelector('.prescription-preview .prescription-info span:last-child').textContent = 
+                `日期：${now.toLocaleDateString('zh-CN')}`;
+            
+            // 更新患者信息
+            document.getElementById('preview-patient').textContent = 
+                `${currentPatient.name} | ${currentPatient.gender} | ${currentPatient.age}岁`;
+            
+            // 更新主诉
+            const chiefComplaint = document.getElementById('chief-complaint').value || '待填写';
+            document.getElementById('preview-chief-complaint').textContent = chiefComplaint;
+            
+            // 更新诊断
+            const diagnosisText = selectedDiagnoses.length > 0 
+                ? selectedDiagnoses.map(d => d.name).join('、') 
+                : '待选择';
+            document.getElementById('preview-diagnosis').textContent = diagnosisText;
+            
+            // 更新药品列表
+            const drugListContainer = document.getElementById('preview-drug-list');
+            if (prescriptionDrugs.length === 0) {
+                drugListContainer.innerHTML = '<div style="font-size: 13px; color: var(--text-secondary); padding: 12px 0;">暂无药品</div>';
+            } else {
+                drugListContainer.innerHTML = `
+                    <div style="font-size: 13px; margin-bottom: 8px;"><strong>Rp：</strong></div>
+                    ${prescriptionDrugs.map((drug, index) => `
+                        <div class="prescription-drug-item">
+                            <span class="prescription-drug-name">${index + 1}. ${drug.name} ${drug.spec}</span>
+                            <span class="prescription-drug-usage">${drug.usage.method} ${drug.usage.frequency} 每次${drug.usage.quantity}${drug.usage.unit}</span>
+                        </div>
+                    `).join('')}
+                `;
+            }
+            
+            // 更新备注
+            const remark = document.getElementById('prescription-remark').value;
+            document.getElementById('preview-remark').textContent = remark || '-';
+        }
+
+        // ========================================
+        // 电子签名功能
+        // ========================================
+        function initSignature() {
+            signatureCanvas = document.getElementById('signatureCanvas');
+            signatureCtx = signatureCanvas.getContext('2d');
+            
+            // 设置画布尺寸和样式
+            signatureCtx.strokeStyle = '#333';
+            signatureCtx.lineWidth = 2;
+            signatureCtx.lineCap = 'round';
+            signatureCtx.lineJoin = 'round';
+            
+            // 触摸事件
+            signatureCanvas.addEventListener('touchstart', handleTouchStart, { passive: false });
+            signatureCanvas.addEventListener('touchmove', handleTouchMove, { passive: false });
+            signatureCanvas.addEventListener('touchend', handleTouchEnd);
+            
+            // 鼠标事件
+            signatureCanvas.addEventListener('mousedown', handleMouseDown);
+            signatureCanvas.addEventListener('mousemove', handleMouseMove);
+            signatureCanvas.addEventListener('mouseup', handleMouseUp);
+            signatureCanvas.addEventListener('mouseleave', handleMouseUp);
+        }
+
+        function getCanvasPos(e) {
+            const rect = signatureCanvas.getBoundingClientRect();
+            const scaleX = signatureCanvas.width / rect.width;
+            const scaleY = signatureCanvas.height / rect.height;
+            
+            if (e.touches) {
+                return {
+                    x: (e.touches[0].clientX - rect.left) * scaleX,
+                    y: (e.touches[0].clientY - rect.top) * scaleY
+                };
+            }
+            return {
+                x: (e.clientX - rect.left) * scaleX,
+                y: (e.clientY - rect.top) * scaleY
+            };
+        }
+
+        function handleMouseDown(e) {
+            isDrawing = true;
+            const pos = getCanvasPos(e);
+            signatureCtx.beginPath();
+            signatureCtx.moveTo(pos.x, pos.y);
+        }
+
+        function handleMouseMove(e) {
+            if (!isDrawing) return;
+            const pos = getCanvasPos(e);
+            signatureCtx.lineTo(pos.x, pos.y);
+            signatureCtx.stroke();
+            hasSignature = true;
+            updateSignatureUI();
+        }
+
+        function handleMouseUp() {
+            isDrawing = false;
+        }
+
+        function handleTouchStart(e) {
+            e.preventDefault();
+            isDrawing = true;
+            const pos = getCanvasPos(e);
+            signatureCtx.beginPath();
+            signatureCtx.moveTo(pos.x, pos.y);
+        }
+
+        function handleTouchMove(e) {
+            e.preventDefault();
+            if (!isDrawing) return;
+            const pos = getCanvasPos(e);
+            signatureCtx.lineTo(pos.x, pos.y);
+            signatureCtx.stroke();
+            hasSignature = true;
+            updateSignatureUI();
+        }
+
+        function handleTouchEnd() {
+            isDrawing = false;
+        }
+
+        function clearSignature() {
+            signatureCtx.clearRect(0, 0, signatureCanvas.width, signatureCanvas.height);
+            hasSignature = false;
+            updateSignatureUI();
+        }
+
+        function updateSignatureUI() {
+            const wrapper = document.getElementById('signature-wrapper');
+            const placeholder = document.getElementById('signature-placeholder');
+            
+            if (hasSignature) {
+                wrapper.classList.add('signed');
+                placeholder.style.display = 'none';
+            } else {
+                wrapper.classList.remove('signed');
+                placeholder.style.display = 'block';
+            }
+        }
+
+        // ========================================
+        // 保存草稿功能
+        // ========================================
+        function saveDraft() {
+            if (prescriptionDrugs.length === 0) {
+                showToast('请至少添加一个药品');
+                return;
+            }
+            
+            const prescriptionNo = generatePrescriptionNo();
+            
+            const draftData = {
+                prescriptionNo: prescriptionNo,
+                patientId: currentPatientId,
+                inquiryId: getUrlParam('inquiryId'),
+                patientName: currentPatient.name,
+                diagnoses: selectedDiagnoses,
+                chiefComplaint: document.getElementById('chief-complaint').value,
+                drugs: prescriptionDrugs,
+                remark: document.getElementById('prescription-remark').value,
+                signature: hasSignature ? signatureCanvas.toDataURL() : null,
+                status: 'draft', // 草稿状态
+                savedAt: new Date().toISOString()
+            };
+            
+            // 保存草稿到本地存储
+            const draftKey = `prescription_draft_${currentPatientId}`;
+            localStorage.setItem(draftKey, JSON.stringify(draftData));
+            
+            // 同时保存处方状态（供问诊页面读取）
+            const prescriptionKey = `prescription_${currentPatientId}`;
+            localStorage.setItem(prescriptionKey, JSON.stringify(draftData));
+            
+            // 显示草稿标识
+            document.getElementById('draft-badge').style.display = 'inline-block';
+            document.getElementById('header-draft-badge').style.display = 'inline-block';
+            
+            showToast('草稿已保存');
+        }
+
+        function loadDraft() {
+            const draftKey = `prescription_draft_${currentPatientId}`;
+            const draftData = localStorage.getItem(draftKey);
+            
+            if (draftData) {
+                try {
+                    const draft = JSON.parse(draftData);
+                    
+                    // 恢复诊断
+                    selectedDiagnoses = draft.diagnoses || [];
+                    renderSelectedDiagnoses();
+                    
+                    // 恢复主诉
+                    document.getElementById('chief-complaint').value = draft.chiefComplaint || '';
+                    
+                    // 恢复药品
+                    prescriptionDrugs = draft.drugs || [];
+                    renderDrugList();
+                    renderUsageList();
+                    
+                    // 恢复备注
+                    document.getElementById('prescription-remark').value = draft.remark || '';
+                    
+                    // 恢复签名
+                    if (draft.signature) {
+                        const img = new Image();
+                        img.onload = function() {
+                            signatureCtx.drawImage(img, 0, 0);
+                            hasSignature = true;
+                            updateSignatureUI();
+                        };
+                        img.src = draft.signature;
+                    }
+                    
+                    // 显示草稿标识
+                    document.getElementById('draft-badge').style.display = 'inline-block';
+                    document.getElementById('header-draft-badge').style.display = 'inline-block';
+                    
+                    updatePreview();
+                    return true;
+                } catch (e) {
+                    console.error('加载草稿失败:', e);
+                }
+            }
+            return false;
+        }
+
+        // ========================================
+        // 模板选择
+        // ========================================
+        function selectTemplate(element) {
+            document.querySelectorAll('.template-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            element.classList.add('selected');
+            
+            const templateName = element.querySelector('.template-name').textContent;
+            const template = templatesData[templateName];
+            
+            if (template) {
+                prescriptionDrugs = template.map(drug => ({
+                    id: drug.id,
+                    name: drug.name,
+                    spec: drug.spec,
+                    price: drugsData.find(d => d.id === drug.id)?.price || 0,
+                    usage: { ...drug.usage }
+                }));
+                renderDrugList();
+                renderUsageList();
+                updatePreview();
+                showToast('已应用模板：' + templateName);
+            }
+        }
+
+
+        // ========================================
+        // 返回处理
+        // ========================================
+        function handleBack() {
+            // 检查是否有未保存的内容
+            const hasContent = prescriptionDrugs.length > 0 || selectedDiagnoses.length > 0 || hasSignature;
+            const hasUnsavedChanges = hasDraftChanges();
+            
+            if (hasUnsavedChanges) {
+                // 显示保存确认弹窗
+                showSaveConfirmDialog();
+            } else {
+                goBack();
+            }
+        }
+
+        function hasDraftChanges() {
+            // 检查是否有实质性内容
+            return prescriptionDrugs.length > 0 || selectedDiagnoses.length > 0;
+        }
+
+        function showSaveConfirmDialog() {
+            const dialog = document.createElement('div');
+            dialog.id = 'save-confirm-dialog';
+            dialog.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0,0,0,0.5);
+                z-index: 1000;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            `;
+            dialog.innerHTML = `
+                <div style="background: #fff; border-radius: 12px; width: 280px; padding: 24px; text-align: center;">
+                    <div style="font-size: 16px; font-weight: 600; margin-bottom: 16px;">有未保存的内容</div>
+                    <div style="font-size: 14px; color: #666; margin-bottom: 24px;">是否保存当前处方草稿？</div>
+                    <div style="display: flex; gap: 12px;">
+                        <button id="discard-btn" style="flex: 1; padding: 12px; border: 1px solid #ddd; background: #fff; border-radius: 8px; font-size: 14px; cursor: pointer;">不保存</button>
+                        <button id="save-btn" style="flex: 1; padding: 12px; border: none; background: #1890ff; color: #fff; border-radius: 8px; font-size: 14px; cursor: pointer;">保存草稿</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(dialog);
+            
+            // 绑定按钮事件
+            document.getElementById('discard-btn').onclick = function() {
+                // 清除草稿并返回
+                const draftKey = `prescription_draft_${currentPatientId}`;
+                localStorage.removeItem(draftKey);
+                document.body.removeChild(dialog);
+                goBack();
+            };
+            
+            document.getElementById('save-btn').onclick = function() {
+                saveDraft();
+                document.body.removeChild(dialog);
+                goBack();
+            };
+        }
+
+        function goBack() {
+            const inquiryId = getUrlParam('inquiryId');
+            if (inquiryId) {
+                // 通知问诊页面刷新处方状态
+                sessionStorage.setItem('refreshPrescription', 'true');
+                location.href = `chat.html?patientId=${currentPatientId}&inquiryId=${inquiryId}`;
+            } else {
+                location.href = 'index.html';
+            }
+        }
+
+        // ========================================
+        // 提交处方
+        // ========================================
+        function submitPrescription() {
+            if (prescriptionDrugs.length === 0) {
+                showToast('请添加药品');
+                return;
+            }
+            
+            if (selectedDiagnoses.length === 0) {
+                showToast('请选择或输入诊断');
+                return;
+            }
+            
+            // 验证签名
+            if (!hasSignature) {
+                showToast('请先签名');
+                return;
+            }
+            
+            // 显示确认弹窗
+            const confirmed = confirm('确认提交处方？提交后将发送给药师审核。');
+            if (confirmed) {
+                // 清除草稿
+                const draftKey = `prescription_draft_${currentPatientId}`;
+                localStorage.removeItem(draftKey);
+                
+                // 生成处方号
+                const prescriptionNo = generatePrescriptionNo();
+                
+                // 构建提交数据
+                const prescriptionData = {
+                    prescriptionNo: prescriptionNo,
+                    patientId: currentPatientId,
+                    inquiryId: getUrlParam('inquiryId'),
+                    patientName: currentPatient.name,
+                    diagnoses: selectedDiagnoses,
+                    chiefComplaint: document.getElementById('chief-complaint').value,
+                    drugs: prescriptionDrugs,
+                    remark: document.getElementById('prescription-remark').value,
+                    signature: signatureCanvas.toDataURL(),
+                    status: 'pending', // 待审核
+                    submittedAt: new Date().toISOString()
+                };
+                
+                // 保存处方状态到 localStorage（供问诊页面读取）
+                const prescriptionKey = `prescription_${currentPatientId}`;
+                localStorage.setItem(prescriptionKey, JSON.stringify(prescriptionData));
+                
+                console.log('处方数据:', prescriptionData);
+                
+                // 模拟API调用
+                showToast('处方提交成功');
+                
+                setTimeout(() => {
+                    const inquiryId = getUrlParam('inquiryId');
+                    if (inquiryId) {
+                        // 通知问诊页面刷新处方状态
+                        sessionStorage.setItem('refreshPrescription', 'true');
+                        location.href = `chat.html?patientId=${currentPatientId}&inquiryId=${inquiryId}`;
+                    } else {
+                        location.href = 'index.html';
+                    }
+                }, 1500);
+            }
+        }
+
+        // ========================================
+        // 初始化
+        // ========================================
+        function initPage() {
+            // 更新患者信息卡片
+            document.querySelector('.patient-card-avatar img').src = currentPatient.avatar;
+            document.querySelector('.patient-card-avatar img').alt = currentPatient.name;
+            document.querySelector('.patient-card-avatar img').onerror = function() {
+                this.src = generateAvatar(this.alt);
+            };
+            document.querySelector('.patient-card-name').textContent = currentPatient.name;
+            document.querySelector('.patient-card-meta').textContent = 
+                `${currentPatient.gender} ${currentPatient.age}岁 | ${currentPatient.condition}`;
+
+            // 初始化签名画布
+            initSignature();
+            
+            // 尝试加载草稿
+            loadDraft();
+            
+            // 更新预览
+            updatePreview();
+        }
+
+        // 事件监听
+        document.addEventListener('DOMContentLoaded', initPage);
+
+        // 诊断搜索输入
+        document.getElementById('diagnosis-search-input').addEventListener('input', function(e) {
+            searchDiagnosis(e.target.value);
+        });
+
+        // 点击外部关闭诊断搜索结果
+        document.addEventListener('click', function(e) {
+            const wrapper = document.querySelector('.diagnosis-search-wrapper');
+            if (wrapper && !wrapper.contains(e.target)) {
+                document.getElementById('diagnosis-search-results').classList.remove('show');
+            }
+        });
+
+        // 药品搜索输入（防抖）
+        document.getElementById('drug-search-input').addEventListener('input', function(e) {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                renderDrugSearchResults(e.target.value);
+            }, 300);
+        });
+
+        // 主诉输入事件
+        document.getElementById('chief-complaint').addEventListener('input', updatePreview);
+
+        // 备注输入事件
+        document.getElementById('prescription-remark').addEventListener('input', updatePreview);
+    </script>
+</body>
+</html>

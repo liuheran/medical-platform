@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>管理端 - 在线问诊平台</title>
+    <link rel="stylesheet" href="../css/common.css">
+    <style>
+        body {
+            background: var(--bg-secondary);
+        }
+
+        .admin-login-page {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #001529 0%, #003366 100%);
+        }
+
+        .admin-login-card {
+            width: 90%;
+            max-width: 400px;
+            background: var(--bg-color);
+            border-radius: var(--radius-lg);
+            padding: 40px;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .admin-login-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .admin-login-logo {
+            width: 64px;
+            height: 64px;
+            background: var(--primary-color);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+            color: #fff;
+            font-size: 32px;
+        }
+
+        .admin-login-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .admin-login-subtitle {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .admin-login-form .input-group {
+            margin-bottom: 20px;
+        }
+
+        .admin-login-btn {
+            width: 100%;
+            height: 48px;
+            background: var(--primary-color);
+            color: #fff;
+            border: none;
+            border-radius: var(--radius-md);
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background var(--transition-fast);
+        }
+
+        .admin-login-btn:hover {
+            background: var(--primary-hover);
+        }
+
+        .admin-login-footer {
+            text-align: center;
+            margin-top: 24px;
+        }
+
+        .admin-login-footer a {
+            color: var(--primary-color);
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-login-page">
+        <div class="admin-login-card">
+            <div class="admin-login-header">
+                <div class="admin-login-logo">
+                    <svg viewBox="0 0 24 24" width="32" height="32" fill="currentColor">
+                        <path d="M12 7V3H2v18h20V7H12zM6 19H4v-2h2v2zm0-4H4v-2h2v2zm0-4H4V9h2v2zm0-4H4V5h2v2zm4 12H8v-2h2v2zm0-4H8v-2h2v2zm0-4H8V9h2v2zm0-4H8V5h2v2zm10 12h-8v-2h2v-2h-2v-2h2v-2h-2V9h8v10zm-2-8h-2v2h2v-2zm0 4h-2v2h2v-2z"/>
+                    </svg>
+                </div>
+                <h1 class="admin-login-title">管理后台</h1>
+                <p class="admin-login-subtitle">在线问诊平台管理系统</p>
+            </div>
+            <div class="admin-login-form">
+                <div class="input-group">
+                    <label class="input-label">管理员账号</label>
+                    <input type="text" class="input" id="admin-account" placeholder="请输入账号" value="admin">
+                </div>
+                <div class="input-group">
+                    <label class="input-label">密码</label>
+                    <input type="password" class="input" id="admin-password" placeholder="请输入密码" value="123456">
+                </div>
+                <button class="admin-login-btn" onclick="adminLogin()">登 录</button>
+            </div>
+            <div class="admin-login-footer">
+                <a href="dashboard.html">跳过登录，直接体验</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/mock-data.js"></script>
+    <script>
+        function adminLogin() {
+            const account = document.getElementById('admin-account').value;
+            const password = document.getElementById('admin-password').value;
+            
+            if (!account || !password) {
+                showToast('请输入账号和密码');
+                return;
+            }
+
+            const result = mockAdminLogin(account, password);
+            if (result.success) {
+                showToast('登录成功');
+                setTimeout(() => {
+                    window.location.href = 'dashboard.html';
+                }, 1000);
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>在线问诊平台 - 选择入口</title>
+    <link rel="stylesheet" href="../css/common.css">
+    <link rel="stylesheet" href="../css/patient.css">
+    <style>
+        .entry-page {
+            min-height: 100vh;
+            background: linear-gradient(180deg, #E6F7FF 0%, #FFFFFF 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 32px 24px;
+        }
+
+        .entry-logo {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, #1890FF, #40A9FF);
+            border-radius: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 48px;
+            margin-bottom: 24px;
+            box-shadow: 0 8px 24px rgba(24, 144, 255, 0.3);
+        }
+
+        .entry-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .entry-subtitle {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 48px;
+        }
+
+        .entry-cards {
+            width: 100%;
+            max-width: 400px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .entry-card {
+            background: var(--bg-color);
+            border-radius: 16px;
+            padding: 24px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            box-shadow: var(--shadow-md);
+            cursor: pointer;
+            transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+        }
+
+        .entry-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .entry-card:active {
+            transform: scale(0.98);
+        }
+
+        .entry-card-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+        }
+
+        .entry-card-icon.patient {
+            background: linear-gradient(135deg, #1890FF, #40A9FF);
+            color: #fff;
+        }
+
+        .entry-card-icon.doctor {
+            background: linear-gradient(135deg, #52C41A, #73D13D);
+            color: #fff;
+        }
+
+        .entry-card-icon.admin {
+            background: linear-gradient(135deg, #FA8C16, #FFB347);
+            color: #fff;
+        }
+
+        .entry-card-content {
+            flex: 1;
+        }
+
+        .entry-card-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .entry-card-desc {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .entry-card-arrow {
+            color: var(--text-disabled);
+            font-size: 20px;
+        }
+
+        .entry-footer {
+            margin-top: 48px;
+            text-align: center;
+            font-size: 12px;
+            color: var(--text-disabled);
+        }
+
+        .entry-footer a {
+            color: var(--primary-color);
+        }
+    </style>
+</head>
+<body>
+    <div class="entry-page">
+        <div class="entry-logo">
+            <svg viewBox="0 0 24 24" width="48" height="48" fill="currentColor">
+                <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-1 11h-4v4h-4v-4H6v-4h4V6h4v4h4v4z"/>
+            </svg>
+        </div>
+        <h1 class="entry-title">在线问诊平台</h1>
+        <p class="entry-subtitle">便捷的远程医疗服务</p>
+
+        <div class="entry-cards">
+            <div class="entry-card" onclick="goTo('login.html')">
+                <div class="entry-card-icon patient">
+                    <svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor">
+                        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                    </svg>
+                </div>
+                <div class="entry-card-content">
+                    <div class="entry-card-title">患者端</div>
+                    <div class="entry-card-desc">在线问诊、购买药品、管理健康档案</div>
+                </div>
+                <div class="entry-card-arrow">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                        <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>
+                    </svg>
+                </div>
+            </div>
+
+            <div class="entry-card" onclick="goTo('../doctor/index.html')">
+                <div class="entry-card-icon doctor">
+                    <svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor">
+                        <path d="M19 8h-1V3H6v5H5c-1.66 0-3 1.34-3 3v6h4v4h12v-4h4v-6c0-1.66-1.34-3-3-3zM8 5h8v3H8V5zm8 14H8v-4h8v4zm2-4v-2H6v2H4v-4c0-.55.45-1 1-1h14c.55 0 1 .45 1 1v4h-2z"/>
+                    </svg>
+                </div>
+                <div class="entry-card-content">
+                    <div class="entry-card-title">医生端</div>
+                    <div class="entry-card-desc">接诊患者、开具处方、管理排班</div>
+                </div>
+                <div class="entry-card-arrow">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                        <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>
+                    </svg>
+                </div>
+            </div>
+
+            <div class="entry-card" onclick="goTo('../admin/index.html')">
+                <div class="entry-card-icon admin">
+                    <svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor">
+                        <path d="M12 7V3H2v18h20V7H12zM6 19H4v-2h2v2zm0-4H4v-2h2v2zm0-4H4V9h2v2zm0-4H4V5h2v2zm4 12H8v-2h2v2zm0-4H8v-2h2v2zm0-4H8V9h2v2zm0-4H8V5h2v2zm10 12h-8v-2h2v-2h-2v-2h2v-2h-2V9h8v10zm-2-8h-2v2h2v-2zm0 4h-2v2h2v-2z"/>
+                    </svg>
+                </div>
+                <div class="entry-card-content">
+                    <div class="entry-card-title">管理端</div>
+                    <div class="entry-card-desc">用户管理、医生管理、数据统计</div>
+                </div>
+                <div class="entry-card-arrow">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                        <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <div class="entry-footer">
+            <a href="home.html">跳过，直接体验患者端</a>
+        </div>
+    </div>
+
+    <script src="../js/mock-data.js"></script>
+    <script>
+        function goTo(url) {
+            window.location.href = url;
+        }
+    </script>
+</body>
+</html>

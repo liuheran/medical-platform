@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>患者详情 - 医生端</title>
+    <link rel="stylesheet" href="../css/common.css">
+    <link rel="stylesheet" href="../css/doctor.css">
+    <style>
+        body {
+            background: var(--bg-secondary);
+        }
+        .patient-header {
+            background: linear-gradient(135deg, #52C41A, #73D13D);
+            color: #fff;
+            padding: 20px 16px;
+        }
+        .patient-header-top {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        .back-btn-white {
+            color: #fff;
+        }
+        .patient-header h1 {
+            flex: 1;
+            font-size: 18px;
+        }
+        .patient-header-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .patient-avatar-large {
+            width: 64px;
+            height: 64px;
+            border-radius: var(--radius-full);
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            overflow: hidden;
+        }
+        .patient-avatar-large img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .patient-header-name {
+            font-size: 20px;
+            font-weight: 600;
+        }
+        .patient-header-meta {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        .patient-header-tags {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+        }
+        .patient-tag {
+            padding: 4px 10px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            font-size: 12px;
+        }
+        .section {
+            background: var(--bg-color);
+            margin: 12px 0;
+        }
+        .section-header {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--bg-secondary);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+        }
+        .section-content {
+            padding: 16px;
+        }
+        .health-record-item {
+            display: flex;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--bg-secondary);
+        }
+        .health-record-item:last-child {
+            border-bottom: none;
+        }
+        .health-record-label {
+            width: 100px;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+        .health-record-value {
+            flex: 1;
+            font-size: 14px;
+        }
+        .inquiry-history-item {
+            padding: 12px 0;
+            border-bottom: 1px solid var(--bg-secondary);
+            cursor: pointer;
+        }
+        .inquiry-history-item:last-child {
+            border-bottom: none;
+        }
+        .inquiry-history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .inquiry-history-date {
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .inquiry-history-type {
+            font-size: 12px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            background: var(--primary-bg);
+            color: var(--primary-color);
+        }
+        .inquiry-history-desc {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .inquiry-history-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .inquiry-history-doctor {
+            font-size: 12px;
+            color: var(--text-disabled);
+        }
+        .inquiry-history-action {
+            font-size: 13px;
+            color: var(--primary-color);
+        }
+        .action-btn {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            padding: 16px;
+            background: var(--bg-color);
+        }
+        .action-btn .btn {
+            flex: 1;
+        }
+        .page-content {
+            padding-bottom: 80px;
+        }
+        .nav-placeholder {
+            height: 80px;
+        }
+        /* 问诊类型选择 */
+        .inquiry-types {
+            display: flex;
+            gap: 12px;
+        }
+        .inquiry-type-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 16px 8px;
+            background: var(--bg-secondary);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .inquiry-type-item:active {
+            transform: scale(0.95);
+        }
+        .inquiry-type-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 8px;
+        }
+        .inquiry-type-info {
+            text-align: center;
+        }
+        .inquiry-type-name {
+            font-size: 14px;
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 2px;
+        }
+        .inquiry-type-desc {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <div class="patient-header">
+            <div class="patient-header-top">
+                <a href="patients.html" class="back-btn back-btn-white">
+                    <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                        <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+                    </svg>
+                </a>
+                <h1>患者详情</h1>
+            </div>
+            <div class="patient-header-info">
+                <div class="patient-avatar-large">
+                    <img src="https://i.pravatar.cc/150?img=1" alt="" id="patient-avatar">
+                </div>
+                <div>
+                    <div class="patient-header-name" id="patient-name">张三</div>
+                    <div class="patient-header-meta" id="patient-meta">男 45岁</div>
+                    <div class="patient-header-tags" id="patient-tags">
+                        <span class="patient-tag">高血压</span>
+                        <span class="patient-tag">复诊</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="page-content">
+            <!-- 基本信息 -->
+            <div class="section">
+                <div class="section-header">
+                    <span class="section-title">基本信息</span>
+                </div>
+                <div class="section-content" id="basic-info">
+                    <!-- 动态渲染 -->
+                </div>
+            </div>
+            
+            <!-- 健康档案 -->
+            <div class="section">
+                <div class="section-header">
+                    <span class="section-title">健康档案</span>
+                    <span style="font-size: 13px; color: var(--primary-color);">查看完整档案</span>
+                </div>
+                <div class="section-content" id="health-records">
+                    <!-- 动态渲染 -->
+                </div>
+            </div>
+            
+            <!-- 既往病史 -->
+            <div class="section">
+                <div class="section-header">
+                    <span class="section-title">既往病史</span>
+                </div>
+                <div class="section-content" id="medical-history">
+                    <!-- 动态渲染 -->
+                </div>
+            </div>
+            
+            <!-- 问诊历史 -->
+            <div class="section">
+                <div class="section-header">
+                    <span class="section-title">问诊历史</span>
+                    <span style="font-size: 13px; color: var(--text-secondary);">共5次</span>
+                </div>
+                <div class="section-content" id="inquiry-history">
+                    <!-- 动态渲染 -->
+                </div>
+            </div>
+            
+            <!-- 快捷问诊 -->
+            <div class="section">
+                <div class="section-header">
+                    <span class="section-title">快捷问诊</span>
+                </div>
+                <div class="section-content">
+                    <div class="inquiry-types">
+                        <div class="inquiry-type-item" onclick="startInquiry('text')">
+                            <div class="inquiry-type-icon" style="background: linear-gradient(135deg, #1890ff, #36cfc9);">
+                                <svg viewBox="0 0 24 24" width="24" height="24" fill="#fff">
+                                    <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/>
+                                </svg>
+                            </div>
+                            <div class="inquiry-type-info">
+                                <div class="inquiry-type-name">图文问诊</div>
+                                <div class="inquiry-type-desc">¥30/次</div>
+                            </div>
+                        </div>
+                        <div class="inquiry-type-item" onclick="startInquiry('voice')">
+                            <div class="inquiry-type-icon" style="background: linear-gradient(135deg, #52c41a, #95de64);">
+                                <svg viewBox="0 0 24 24" width="24" height="24" fill="#fff">
+                                    <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.91-3c-.49 0-.9.36-.98.85C16.52 14.2 14.47 16 12 16s-4.52-1.8-4.93-4.15c-.08-.49-.49-.85-.98-.85-.61 0-1.09.54-1 1.14.49 3 2.89 5.35 5.91 5.78V20c0 .55.45 1 1 1s1-.45 1-1v-2.08c3.02-.43 5.42-2.78 5.91-5.78.1-.6-.39-1.14-1-1.14z"/>
+                                </svg>
+                            </div>
+                            <div class="inquiry-type-info">
+                                <div class="inquiry-type-name">语音问诊</div>
+                                <div class="inquiry-type-desc">¥50/次</div>
+                            </div>
+                        </div>
+                        <div class="inquiry-type-item" onclick="startInquiry('video')">
+                            <div class="inquiry-type-icon" style="background: linear-gradient(135deg, #722ed1, #b37feb);">
+                                <svg viewBox="0 0 24 24" width="24" height="24" fill="#fff">
+                                    <path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/>
+                                </svg>
+                            </div>
+                            <div class="inquiry-type-info">
+                                <div class="inquiry-type-name">视频问诊</div>
+                                <div class="inquiry-type-desc">¥80/次</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 底部导航 -->
+        <div class="doctor-nav">
+            <div class="doctor-nav-item" onclick="location.href='index.html'">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                    <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+                </svg>
+                <span>工作台</span>
+            </div>
+            <div class="doctor-nav-item active" onclick="location.href='patients.html'">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                    <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+                </svg>
+                <span>患者</span>
+            </div>
+            <div class="doctor-nav-item" onclick="location.href='prescription.html'">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                    <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+                </svg>
+                <span>处方</span>
+            </div>
+            <div class="doctor-nav-item" onclick="location.href='statistics.html'">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                    <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/>
+                </svg>
+                <span>统计</span>
+            </div>
+            <div class="doctor-nav-item" onclick="location.href='settings.html'">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                    <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                </svg>
+                <span>我的</span>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/mock-data.js"></script>
+    <script src="../js/avatar.js"></script>
+    <script>
+        // 获取URL参数
+        function getUrlParam(name) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(name);
+        }
+
+        // 患者数据列表
+        const patientsData = {
+            20001: {
+                id: 20001,
+                name: '张三',
+                avatar: 'https://i.pravatar.cc/150?img=1',
+                gender: '女',
+                age: 45,
+                phone: '138****1234',
+                idCard: '110101****1234****',
+                bloodType: 'O型',
+                allergies: '无过敏史',
+                height: '165cm',
+                weight: '62kg',
+                tags: ['高血压', '复诊', '慢病管理'],
+                basicRecords: [
+                    { label: '手机号', value: '138****1234' },
+                    { label: '身份证', value: '110101****1234****' },
+                    { label: '血型', value: 'O型' },
+                    { label: '身高', value: '165cm' },
+                    { label: '体重', value: '62kg' },
+                    { label: '过敏史', value: '无过敏史' }
+                ],
+                healthRecords: [
+                    { label: '血压', value: '145/95 mmHg', status: 'warning' },
+                    { label: '血糖', value: '5.8 mmol/L', status: 'normal' },
+                    { label: '血脂', value: '偏高', status: 'warning' },
+                    { label: '心率', value: '78 次/分', status: 'normal' }
+                ],
+                medicalHistory: [
+                    '高血压病史3年，服用苯磺酸氨氯地平片控制',
+                    '2024年体检发现脂肪肝',
+                    '无手术史'
+                ],
+                inquiryHistory: [
+                    {
+                        id: 50001,
+                        date: '2026-05-10',
+                        type: '图文问诊',
+                        desc: '最近经常头疼，已经持续一周，伴有失眠症状。',
+                        doctor: '王建国 主任医师'
+                    },
+                    {
+                        id: 50002,
+                        date: '2026-04-25',
+                        type: '图文问诊',
+                        desc: '服药后出现轻微头晕，咨询是否需要调整用药。',
+                        doctor: '王建国 主任医师'
+                    },
+                    {
+                        id: 50003,
+                        date: '2026-04-10',
+                        type: '语音问诊',
+                        desc: '常规复诊，血压控制稳定，继续当前用药方案。',
+                        doctor: '王建国 主任医师'
+                    }
+                ]
+            },
+            20002: {
+                id: 20002,
+                name: '李四',
+                avatar: 'https://i.pravatar.cc/150?img=5',
+                gender: '男',
+                age: 38,
+                phone: '139****5678',
+                idCard: '310101****5678****',
+                bloodType: 'A型',
+                allergies: '青霉素过敏',
+                height: '178cm',
+                weight: '82kg',
+                tags: ['高血压', '新患者'],
+                basicRecords: [
+                    { label: '手机号', value: '139****5678' },
+                    { label: '身份证', value: '310101****5678****' },
+                    { label: '血型', value: 'A型' },
+                    { label: '身高', value: '178cm' },
+                    { label: '体重', value: '82kg' },
+                    { label: '过敏史', value: '青霉素过敏' }
+                ],
+                healthRecords: [
+                    { label: '血压', value: '152/98 mmHg', status: 'warning' },
+                    { label: '血糖', value: '6.5 mmol/L', status: 'warning' },
+                    { label: '血脂', value: '正常', status: 'normal' },
+                    { label: '心率', value: '82 次/分', status: 'normal' }
+                ],
+                medicalHistory: [
+                    '高血压病史1年，服药不规律',
+                    '有吸烟饮酒史',
+                    '父亲有高血压病史'
+                ],
+                inquiryHistory: [
+                    {
+                        id: 50004,
+                        date: '2026-05-10',
+                        type: '语音问诊',
+                        desc: '高血压病史，想咨询用药调整',
+                        doctor: '王建国 主任医师'
+                    }
+                ]
+            },
+            20003: {
+                id: 20003,
+                name: '王五',
+                avatar: 'https://i.pravatar.cc/150?img=8',
+                gender: '女',
+                age: 52,
+                phone: '137****9012',
+                idCard: '440101****9012****',
+                bloodType: 'B型',
+                allergies: '磺胺类药物过敏',
+                height: '160cm',
+                weight: '58kg',
+                tags: ['心脏病', '复诊'],
+                basicRecords: [
+                    { label: '手机号', value: '137****9012' },
+                    { label: '身份证', value: '440101****9012****' },
+                    { label: '血型', value: 'B型' },
+                    { label: '身高', value: '160cm' },
+                    { label: '体重', value: '58kg' },
+                    { label: '过敏史', value: '磺胺类药物过敏' }
+                ],
+                healthRecords: [
+                    { label: '血压', value: '128/82 mmHg', status: 'normal' },
+                    { label: '血糖', value: '5.6 mmol/L', status: 'normal' },
+                    { label: '血脂', value: '正常', status: 'normal' },
+                    { label: '心率', value: '72 次/分', status: 'normal' }
+                ],
+                medicalHistory: [
+                    '冠心病史2年，支架术后',
+                    '高脂血症',
+                    '2024年行冠脉支架植入术'
+                ],
+                inquiryHistory: [
+                    {
+                        id: 50005,
+                        date: '2026-05-10',
+                        type: '图文问诊',
+                        desc: '心悸、胸闷，体检心电图异常',
+                        doctor: '王建国 主任医师'
+                    },
+                    {
+                        id: 50006,
+                        date: '2026-04-20',
+                        type: '视频问诊',
+                        desc: '常规复诊，各项指标稳定，继续当前治疗方案。',
+                        doctor: '王建国 主任医师'
+                    }
+                ]
+            }
+        };
+
+        // 当前患者数据
+        let patientData = patientsData[20001];
+
+        // 渲染基本信息
+        function renderBasicInfo() {
+            const container = document.getElementById('basic-info');
+            container.innerHTML = patientData.basicRecords.map(record => `
+                <div class="health-record-item">
+                    <span class="health-record-label">${record.label}</span>
+                    <span class="health-record-value">${record.value}</span>
+                </div>
+            `).join('');
+        }
+
+        // 渲染健康档案
+        function renderHealthRecords() {
+            const container = document.getElementById('health-records');
+            container.innerHTML = patientData.healthRecords.map(record => `
+                <div class="health-record-item">
+                    <span class="health-record-label">${record.label}</span>
+                    <span class="health-record-value" style="color: ${record.status === 'warning' ? 'var(--warning-color)' : 'inherit'}">
+                        ${record.value}
+                        ${record.status === 'warning' ? '<span style="color: var(--warning-color);"> ⚠️</span>' : ''}
+                    </span>
+                </div>
+            `).join('');
+        }
+
+        // 渲染既往病史
+        function renderMedicalHistory() {
+            const container = document.getElementById('medical-history');
+            container.innerHTML = patientData.medicalHistory.map(history => `
+                <div style="padding: 8px 0; font-size: 14px; display: flex; align-items: flex-start; gap: 8px;">
+                    <span style="color: var(--primary-color);">•</span>
+                    <span>${history}</span>
+                </div>
+            `).join('');
+        }
+
+        // 渲染问诊历史
+        function renderInquiryHistory() {
+            const container = document.getElementById('inquiry-history');
+            container.innerHTML = patientData.inquiryHistory.map(inquiry => `
+                <div class="inquiry-history-item" onclick="showToast('查看问诊详情 #${inquiry.id}')">
+                    <div class="inquiry-history-header">
+                        <span class="inquiry-history-date">${inquiry.date}</span>
+                        <span class="inquiry-history-type">${inquiry.type}</span>
+                    </div>
+                    <div class="inquiry-history-desc">${inquiry.desc}</div>
+                    <div class="inquiry-history-footer">
+                        <span class="inquiry-history-doctor">${inquiry.doctor}</span>
+                        <span class="inquiry-history-action">查看详情 →</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 发起问诊
+        function startInquiry(type) {
+            const typeNames = { text: '图文', voice: '语音', video: '视频' };
+            showToast(`进入${typeNames[type]}问诊...`);
+            setTimeout(() => {
+                if (type === 'video') {
+                    window.location.href = `video-consultation.html?patientId=${patientData.id}&name=${patientData.name}`;
+                } else if (type === 'voice') {
+                    window.location.href = `voice-call.html?patientId=${patientData.id}&name=${patientData.name}&phone=${patientData.phone}&gender=${patientData.gender}&age=${patientData.age}`;
+                } else {
+                    window.location.href = `chat.html?patientId=${patientData.id}&type=${type}`;
+                }
+            }, 500);
+        }
+
+        // 页面加载时初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 获取URL参数，加载对应患者数据
+            const patientId = getUrlParam('id');
+            if (patientId && patientsData[patientId]) {
+                patientData = patientsData[patientId];
+            }
+
+            // 更新页面标题
+            document.getElementById('patient-name').textContent = patientData.name;
+            document.getElementById('patient-meta').textContent = `${patientData.gender} ${patientData.age}岁`;
+            document.getElementById('patient-avatar').src = patientData.avatar;
+            document.getElementById('patient-avatar').onerror = function() {
+                this.src = generateAvatar(patientData.name);
+            };
+            
+            // 渲染标签
+            const tagsContainer = document.getElementById('patient-tags');
+            tagsContainer.innerHTML = patientData.tags.map(tag => `
+                <span class="patient-tag">${tag}</span>
+            `).join('');
+
+            // 渲染各部分内容
+            renderBasicInfo();
+            renderHealthRecords();
+            renderMedicalHistory();
+            renderInquiryHistory();
+        });
+    </script>
+</body>
+</html>

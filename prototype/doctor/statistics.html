@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>统计报表 - 医生端</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background-color: #f5f5f5;
+            min-height: 100vh;
+        }
+
+        /* 顶部导航 */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 56px;
+            background: #fff;
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+            z-index: 100;
+        }
+
+        .header-back {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .header-title {
+            flex: 1;
+            text-align: center;
+            font-size: 17px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .header-action {
+            font-size: 14px;
+            color: #1890ff;
+            cursor: pointer;
+        }
+
+        /* 内容区域 */
+        .content {
+            padding: 68px 16px 80px;
+            min-height: 100vh;
+        }
+
+        /* 时间筛选 */
+        .time-filter {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .time-item {
+            padding: 8px 16px;
+            background: #fff;
+            border-radius: 20px;
+            font-size: 13px;
+            color: #666;
+            cursor: pointer;
+        }
+
+        .time-item.active {
+            background: #1890ff;
+            color: #fff;
+        }
+
+        /* 总览卡片 */
+        .overview-card {
+            background: linear-gradient(135deg, #1890ff 0%, #36cfc9 100%);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+            color: #fff;
+        }
+
+        .overview-card-title {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 8px;
+        }
+
+        .overview-card-value {
+            font-size: 36px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .overview-card-desc {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        .overview-card-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .overview-item {
+            text-align: center;
+        }
+
+        .overview-item-value {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .overview-item-label {
+            font-size: 12px;
+            opacity: 0.8;
+            margin-top: 4px;
+        }
+
+        /* 统计卡片 */
+        .stats-card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        .stats-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .stats-card-title {
+            font-size: 16px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .stats-card-legend {
+            display: flex;
+            gap: 12px;
+            font-size: 12px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .legend-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .legend-dot.blue {
+            background: #1890ff;
+        }
+
+        .legend-dot.green {
+            background: #52c41a;
+        }
+
+        /* 图表占位 */
+        .chart-placeholder {
+            height: 200px;
+            background: linear-gradient(180deg, #f0f5ff 0%, #fff 100%);
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 12px;
+        }
+
+        .chart-bars {
+            display: flex;
+            align-items: flex-end;
+            gap: 8px;
+            height: 150px;
+            padding: 0 16px;
+        }
+
+        .chart-bar {
+            width: 24px;
+            background: linear-gradient(180deg, #1890ff 0%, #69c0ff 100%);
+            border-radius: 4px 4px 0 0;
+            transition: all 0.3s;
+        }
+
+        .chart-bar:hover {
+            background: linear-gradient(180deg, #096dd9 0%, #1890ff 100%);
+        }
+
+        .chart-bar-label {
+            font-size: 10px;
+            color: #999;
+            margin-top: 8px;
+        }
+
+        /* 服务类型分布 */
+        .service-distribution {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .distribution-item {
+            display: flex;
+            align-items: center;
+        }
+
+        .distribution-label {
+            width: 80px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .distribution-bar-wrapper {
+            flex: 1;
+            height: 20px;
+            background: #f5f5f5;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 0 12px;
+        }
+
+        .distribution-bar {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.5s ease;
+        }
+
+        .distribution-bar.text {
+            background: linear-gradient(90deg, #1890ff, #69c0ff);
+        }
+
+        .distribution-bar.phone {
+            background: linear-gradient(90deg, #52c41a, #95de64);
+        }
+
+        .distribution-bar.video {
+            background: linear-gradient(90deg, #722ed1, #b37feb);
+        }
+
+        .distribution-value {
+            width: 50px;
+            text-align: right;
+            font-size: 14px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        /* 热门药品 */
+        .medicine-list {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .medicine-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .medicine-item:last-child {
+            border-bottom: none;
+        }
+
+        .medicine-rank {
+            width: 24px;
+            height: 24px;
+            background: #f5f5f5;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 600;
+            color: #666;
+            margin-right: 12px;
+        }
+
+        .medicine-rank.top {
+            background: #fff7e6;
+            color: #fa8c16;
+        }
+
+        .medicine-info {
+            flex: 1;
+        }
+
+        .medicine-name {
+            font-size: 14px;
+            color: #333;
+            margin-bottom: 2px;
+        }
+
+        .medicine-count {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .medicine-trend {
+            font-size: 12px;
+            color: #52c41a;
+        }
+
+        /* 患者来源 */
+        .source-list {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .source-item {
+            background: #f5f5f5;
+            border-radius: 8px;
+            padding: 16px;
+            text-align: center;
+        }
+
+        .source-icon {
+            width: 40px;
+            height: 40px;
+            background: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 8px;
+        }
+
+        .source-value {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .source-label {
+            font-size: 12px;
+            color: #999;
+            margin-top: 4px;
+        }
+
+        /* 底部导航 */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background: #fff;
+            display: flex;
+            box-shadow: 0 -1px 3px rgba(0, 0, 0, 0.08);
+            z-index: 100;
+        }
+
+        .nav-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: #999;
+        }
+
+        .nav-item.active {
+            color: #1890ff;
+        }
+
+        .nav-item svg {
+            margin-bottom: 4px;
+        }
+
+        .nav-item span {
+            font-size: 10px;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.75);
+            color: #fff;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            z-index: 1000;
+            display: none;
+        }
+
+        .toast.show {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部导航 -->
+    <div class="header">
+        <div class="header-back" onclick="location.href='index.html'">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2">
+                <path d="M15 18l-6-6 6-6"/>
+            </svg>
+        </div>
+        <div class="header-title">统计报表</div>
+        <div class="header-action" onclick="showToast('导出报表')">导出</div>
+    </div>
+
+    <!-- 内容区域 -->
+    <div class="content">
+        <!-- 时间筛选 -->
+        <div class="time-filter">
+            <div class="time-item" onclick="selectTime('today', this)">今日</div>
+            <div class="time-item active" onclick="selectTime('week', this)">本周</div>
+            <div class="time-item" onclick="selectTime('month', this)">本月</div>
+            <div class="time-item" onclick="selectTime('year', this)">本年</div>
+        </div>
+
+        <!-- 总览卡片 -->
+        <div class="overview-card">
+            <div class="overview-card-title">本月问诊总量</div>
+            <div class="overview-card-value">268</div>
+            <div class="overview-card-desc">较上月 +12.5%</div>
+            <div class="overview-card-grid">
+                <div class="overview-item">
+                    <div class="overview-item-value">86</div>
+                    <div class="overview-item-label">处方数</div>
+                </div>
+                <div class="overview-item">
+                    <div class="overview-item-value">156</div>
+                    <div class="overview-item-label">复诊数</div>
+                </div>
+                <div class="overview-item">
+                    <div class="overview-item-value">45</div>
+                    <div class="overview-item-label">新患者</div>
+                </div>
+                <div class="overview-item">
+                    <div class="overview-item-value">98%</div>
+                    <div class="overview-item-label">好评率</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 问诊趋势图 -->
+        <div class="stats-card">
+            <div class="stats-card-header">
+                <div class="stats-card-title">问诊趋势</div>
+                <div class="stats-card-legend">
+                    <div class="legend-item">
+                        <span class="legend-dot blue"></span>
+                        <span>问诊量</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-dot green"></span>
+                        <span>处方量</span>
+                    </div>
+                </div>
+            </div>
+            <div class="chart-placeholder">
+                <div class="chart-bars">
+                    <div>
+                        <div class="chart-bar" style="height: 60px;"></div>
+                        <div class="chart-bar-label">周一</div>
+                    </div>
+                    <div>
+                        <div class="chart-bar" style="height: 80px;"></div>
+                        <div class="chart-bar-label">周二</div>
+                    </div>
+                    <div>
+                        <div class="chart-bar" style="height: 100px;"></div>
+                        <div class="chart-bar-label">周三</div>
+                    </div>
+                    <div>
+                        <div class="chart-bar" style="height: 70px;"></div>
+                        <div class="chart-bar-label">周四</div>
+                    </div>
+                    <div>
+                        <div class="chart-bar" style="height: 120px;"></div>
+                        <div class="chart-bar-label">周五</div>
+                    </div>
+                    <div>
+                        <div class="chart-bar" style="height: 90px;"></div>
+                        <div class="chart-bar-label">周六</div>
+                    </div>
+                    <div>
+                        <div class="chart-bar" style="height: 40px;"></div>
+                        <div class="chart-bar-label">周日</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 服务类型分布 -->
+        <div class="stats-card">
+            <div class="stats-card-header">
+                <div class="stats-card-title">服务类型分布</div>
+            </div>
+            <div class="service-distribution">
+                <div class="distribution-item">
+                    <div class="distribution-label">图文问诊</div>
+                    <div class="distribution-bar-wrapper">
+                        <div class="distribution-bar text" style="width: 55%;"></div>
+                    </div>
+                    <div class="distribution-value">148</div>
+                </div>
+                <div class="distribution-item">
+                    <div class="distribution-label">电话问诊</div>
+                    <div class="distribution-bar-wrapper">
+                        <div class="distribution-bar phone" style="width: 30%;"></div>
+                    </div>
+                    <div class="distribution-value">80</div>
+                </div>
+                <div class="distribution-item">
+                    <div class="distribution-label">视频问诊</div>
+                    <div class="distribution-bar-wrapper">
+                        <div class="distribution-bar video" style="width: 15%;"></div>
+                    </div>
+                    <div class="distribution-value">40</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 热门药品 -->
+        <div class="stats-card">
+            <div class="stats-card-header">
+                <div class="stats-card-title">热门药品 TOP 5</div>
+            </div>
+            <div class="medicine-list">
+                <div class="medicine-item">
+                    <div class="medicine-rank top">1</div>
+                    <div class="medicine-info">
+                        <div class="medicine-name">苯磺酸氨氯地平片</div>
+                        <div class="medicine-count">开出 45 次</div>
+                    </div>
+                    <div class="medicine-trend">+15%</div>
+                </div>
+                <div class="medicine-item">
+                    <div class="medicine-rank top">2</div>
+                    <div class="medicine-info">
+                        <div class="medicine-name">复方氨酚烷胺片</div>
+                        <div class="medicine-count">开出 32 次</div>
+                    </div>
+                    <div class="medicine-trend">+8%</div>
+                </div>
+                <div class="medicine-item">
+                    <div class="medicine-rank">3</div>
+                    <div class="medicine-info">
+                        <div class="medicine-name">二甲双胍片</div>
+                        <div class="medicine-count">开出 28 次</div>
+                    </div>
+                    <div class="medicine-trend">+5%</div>
+                </div>
+                <div class="medicine-item">
+                    <div class="medicine-rank">4</div>
+                    <div class="medicine-info">
+                        <div class="medicine-name">天麻素片</div>
+                        <div class="medicine-count">开出 24 次</div>
+                    </div>
+                    <div class="medicine-trend">+12%</div>
+                </div>
+                <div class="medicine-item">
+                    <div class="medicine-rank">5</div>
+                    <div class="medicine-info">
+                        <div class="medicine-name">蒙脱石散</div>
+                        <div class="medicine-count">开出 18 次</div>
+                    </div>
+                    <div class="medicine-trend">-3%</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 患者来源 -->
+        <div class="stats-card">
+            <div class="stats-card-header">
+                <div class="stats-card-title">患者来源</div>
+            </div>
+            <div class="source-list">
+                <div class="source-item">
+                    <div class="source-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="#1890ff">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
+                        </svg>
+                    </div>
+                    <div class="source-value">156</div>
+                    <div class="source-label">复诊患者</div>
+                </div>
+                <div class="source-item">
+                    <div class="source-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="#52c41a">
+                            <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+                        </svg>
+                    </div>
+                    <div class="source-value">112</div>
+                    <div class="source-label">新患者</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 底部导航 -->
+    <div class="bottom-nav">
+        <div class="nav-item" onclick="location.href='index.html'">
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+            </svg>
+            <span>工作台</span>
+        </div>
+        <div class="nav-item" onclick="location.href='patients.html'">
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+            </svg>
+            <span>患者</span>
+        </div>
+        <div class="nav-item" onclick="location.href='prescription-history.html'">
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+            </svg>
+            <span>处方</span>
+        </div>
+        <div class="nav-item active">
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/>
+            </svg>
+            <span>统计</span>
+        </div>
+        <div class="nav-item" onclick="location.href='settings.html'">
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+            </svg>
+            <span>我的</span>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // 显示 Toast
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2000);
+        }
+
+        // 选择时间范围
+        function selectTime(period, element) {
+            document.querySelectorAll('.time-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            element.classList.add('active');
+            showToast('已切换到' + element.textContent);
+        }
+    </script>
+</body>
+</html>

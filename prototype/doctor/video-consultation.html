@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>视频问诊 - 医生端</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', sans-serif;
+            background: #000;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 顶部导航 */
+        .video-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 56px;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            z-index: 100;
+        }
+
+        .video-header-back {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: #fff;
+        }
+
+        .video-header-info {
+            flex: 1;
+            margin-left: 12px;
+            color: #fff;
+        }
+
+        .video-header-name {
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .video-header-time {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        .video-header-actions {
+            display: flex;
+            gap: 16px;
+        }
+
+        .video-header-btn {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: #fff;
+        }
+
+        /* 视频区域 */
+        .video-container {
+            flex: 1;
+            position: relative;
+            background: #1a1a1a;
+        }
+
+        /* 远端视频（大画面） */
+        .remote-video {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+        }
+
+        .remote-video video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .remote-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #1890ff, #36cfc9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 48px;
+            font-weight: 500;
+        }
+
+        .remote-name {
+            margin-top: 16px;
+            font-size: 18px;
+            color: #fff;
+        }
+
+        .remote-status {
+            margin-top: 8px;
+            font-size: 14px;
+            color: #999;
+        }
+
+        /* 本地视频（小画面） */
+        .local-video {
+            position: absolute;
+            top: 70px;
+            right: 16px;
+            width: 100px;
+            height: 140px;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #333;
+            border: 2px solid #fff;
+        }
+
+        .local-video video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transform: scaleX(-1);
+        }
+
+        .local-placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+        }
+
+        .local-placeholder svg {
+            width: 32px;
+            height: 32px;
+            margin-bottom: 4px;
+        }
+
+        .local-placeholder span {
+            font-size: 10px;
+        }
+
+        /* 通话状态提示 */
+        .call-status {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 12px 24px;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 24px;
+            color: #fff;
+            font-size: 14px;
+            display: none;
+        }
+
+        .call-status.show {
+            display: block;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* 底部控制栏 */
+        .video-controls {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 24px 32px 48px;
+            background: linear-gradient(transparent, rgba(0, 0, 0, 0.9));
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+        }
+
+        .control-btn {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .control-btn:active {
+            transform: scale(0.95);
+        }
+
+        .control-btn.mute {
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+        }
+
+        .control-btn.mute.active {
+            background: #ff4d4f;
+        }
+
+        .control-btn.camera {
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+        }
+
+        .control-btn.camera.active {
+            background: #ff4d4f;
+        }
+
+        .control-btn.flip {
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+        }
+
+        .control-btn.end {
+            background: #ff4d4f;
+            color: #fff;
+            width: 64px;
+            height: 64px;
+        }
+
+        .control-btn.end svg {
+            width: 28px;
+            height: 28px;
+        }
+
+        .control-label {
+            font-size: 10px;
+            color: #999;
+            margin-top: 4px;
+            text-align: center;
+        }
+
+        /* 接听界面 */
+        .incoming-call {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, #722ed1 0%, #b37feb 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 200;
+        }
+
+        .incoming-call.hidden {
+            display: none;
+        }
+
+        .incoming-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            color: #722ed1;
+            margin-bottom: 24px;
+        }
+
+        .incoming-name {
+            font-size: 24px;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 8px;
+        }
+
+        .incoming-type {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 48px;
+        }
+
+        .incoming-time {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 80px;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        .incoming-actions {
+            display: flex;
+            gap: 80px;
+        }
+
+        .incoming-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .incoming-btn-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .incoming-btn-icon:active {
+            transform: scale(0.95);
+        }
+
+        .incoming-btn-icon.reject {
+            background: #ff4d4f;
+            color: #fff;
+        }
+
+        .incoming-btn-icon.accept {
+            background: #52c41a;
+            color: #fff;
+        }
+
+        .incoming-btn-icon svg {
+            width: 28px;
+            height: 28px;
+        }
+
+        .incoming-btn-label {
+            font-size: 12px;
+            color: #fff;
+            margin-top: 8px;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            top: 70px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.75);
+            color: #fff;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .toast.show {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部导航 -->
+    <div class="video-header">
+        <div class="video-header-back" onclick="endCall()">
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+            </svg>
+        </div>
+        <div class="video-header-info">
+            <div class="video-header-name" id="patientName">等待连接...</div>
+            <div class="video-header-time" id="callTime">00:00</div>
+        </div>
+        <div class="video-header-actions">
+            <div class="video-header-btn" onclick="toggleMute()">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor" id="muteIcon">
+                    <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.91-3c-.49 0-.9.36-.98.85C16.52 14.2 14.47 16 12 16s-4.52-1.8-4.93-4.15c-.08-.49-.49-.85-.98-.85-.61 0-1.09.54-1 1.14.49 3 2.89 5.35 5.91 5.78V20c0 .55.45 1 1 1s1-.45 1-1v-2.08c3.02-.43 5.42-2.78 5.91-5.78.1-.6-.39-1.14-1-1.14z"/>
+                </svg>
+            </div>
+            <div class="video-header-btn" onclick="toggleCamera()">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor" id="cameraIcon">
+                    <path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/>
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <!-- 视频区域 -->
+    <div class="video-container">
+        <!-- 远端视频 -->
+        <div class="remote-video" id="remoteVideo">
+            <div class="remote-avatar" id="remoteAvatar">张</div>
+            <div class="remote-name" id="remoteName">张三</div>
+            <div class="remote-status" id="remoteStatus">等待患者加入...</div>
+        </div>
+
+        <!-- 本地视频 -->
+        <div class="local-video" id="localVideo">
+            <div class="local-placeholder">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                </svg>
+                <span>医生</span>
+            </div>
+        </div>
+
+        <!-- 通话状态 -->
+        <div class="call-status" id="callStatus">正在连接...</div>
+    </div>
+
+    <!-- 底部控制栏 -->
+    <div class="video-controls">
+        <div class="control-item">
+            <div class="control-btn mute" id="muteBtn" onclick="toggleMute()">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor" id="muteBtnIcon">
+                    <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.91-3c-.49 0-.9.36-.98.85C16.52 14.2 14.47 16 12 16s-4.52-1.8-4.93-4.15c-.08-.49-.49-.85-.98-.85-.61 0-1.09.54-1 1.14.49 3 2.89 5.35 5.91 5.78V20c0 .55.45 1 1 1s1-.45 1-1v-2.08c3.02-.43 5.42-2.78 5.91-5.78.1-.6-.39-1.14-1-1.14z"/>
+                </svg>
+            </div>
+            <div class="control-label" id="muteLabel">静音</div>
+        </div>
+        <div class="control-item">
+            <div class="control-btn camera" id="cameraBtn" onclick="toggleCamera()">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor" id="cameraBtnIcon">
+                    <path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/>
+                </svg>
+            </div>
+            <div class="control-label" id="cameraLabel">关闭摄像头</div>
+        </div>
+        <div class="control-item">
+            <div class="control-btn end" onclick="endCall()">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 9c-1.6 0-3.15.25-4.6.72v3.1c0 .39-.23.74-.56.9-.98.49-1.87 1.12-2.66 1.85-.18.18-.43.28-.7.28-.28 0-.53-.11-.71-.29L.29 13.08c-.18-.17-.29-.42-.29-.7 0-.28.11-.53.29-.71C3.34 8.78 7.46 7 12 7s8.66 1.78 11.71 4.67c.18.18.29.43.29.71 0 .28-.11.53-.29.71l-2.48 2.48c-.18.18-.43.29-.71.29-.27 0-.52-.11-.7-.28-.79-.74-1.69-1.36-2.67-1.85-.33-.16-.56-.5-.56-.9v-3.1C15.15 9.25 13.6 9 12 9z"/>
+                </svg>
+            </div>
+            <div class="control-label" style="color: #ff4d4f;">结束</div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // 获取URL参数
+        function getUrlParam(name) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(name);
+        }
+
+        // 获取返回chat页面的URL
+        function getBackToChatUrl() {
+            // 优先从 URL 参数获取 patientId
+            const patientId = getUrlParam('patientId') || sessionStorage.getItem('patientId') || '';
+            // 返回时固定带上 type=video
+            const url = `chat.html?patientId=${patientId}&type=video`;
+            console.log('返回 chat URL:', url);
+            return url;
+        }
+
+        // 进入页面时保存 patientId 和 type 到 sessionStorage
+        const patientId = getUrlParam('patientId');
+        if (patientId) {
+            sessionStorage.setItem('patientId', patientId);
+        }
+        const urlType = getUrlParam('type');
+        if (urlType) {
+            sessionStorage.setItem('consultationType', urlType);
+        }
+        const patientName = getUrlParam('name') || '张三';
+
+        // 状态变量
+        let isMuted = false;
+        let isCameraOff = false;
+        let callStartTime = null;
+        let callTimer = null;
+
+        // 初始化（使用前面已声明的变量）
+        document.getElementById('patientName').textContent = patientName;
+        document.getElementById('remoteName').textContent = patientName;
+        document.getElementById('remoteAvatar').textContent = patientName.charAt(0);
+
+        // 显示Toast
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2000);
+        }
+
+        // 切换静音
+        function toggleMute() {
+            isMuted = !isMuted;
+            const muteBtn = document.getElementById('muteBtn');
+            const muteBtnIcon = document.getElementById('muteBtnIcon');
+            const muteLabel = document.getElementById('muteLabel');
+            
+            if (isMuted) {
+                muteBtn.classList.add('active');
+                muteBtnIcon.innerHTML = '<path d="M19 11h-1.7c0 .74-.16 1.43-.43 2.05l1.23 1.23c.56-.98.9-2.09.9-3.28zm-4.02.17c0-.06.02-.11.02-.17V5c0-1.66-1.34-3-3-3S9 3.34 9 5v.18l5.98 5.99zM4.27 3L3 4.27l6.01 6.01V11c0 1.66 1.33 3 2.99 3 .22 0 .44-.03.65-.08l1.66 1.66c-.71.33-1.5.52-2.31.52-2.76 0-5.3-2.1-5.3-5.1H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c.91-.13 1.77-.45 2.54-.9L19.73 21 21 19.73 4.27 3z"/>';
+                muteLabel.textContent = '取消静音';
+                showToast('已静音');
+            } else {
+                muteBtn.classList.remove('active');
+                muteBtnIcon.innerHTML = '<path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.91-3c-.49 0-.9.36-.98.85C16.52 14.2 14.47 16 12 16s-4.52-1.8-4.93-4.15c-.08-.49-.49-.85-.98-.85-.61 0-1.09.54-1 1.14.49 3 2.89 5.35 5.91 5.78V20c0 .55.45 1 1 1s1-.45 1-1v-2.08c3.02-.43 5.42-2.78 5.91-5.78.1-.6-.39-1.14-1-1.14z"/>';
+                muteLabel.textContent = '静音';
+                showToast('已取消静音');
+            }
+        }
+
+        // 切换摄像头
+        function toggleCamera() {
+            isCameraOff = !isCameraOff;
+            const cameraBtn = document.getElementById('cameraBtn');
+            const cameraBtnIcon = document.getElementById('cameraBtnIcon');
+            const cameraLabel = document.getElementById('cameraLabel');
+            const localVideo = document.getElementById('localVideo');
+            
+            if (isCameraOff) {
+                cameraBtn.classList.add('active');
+                cameraBtnIcon.innerHTML = '<path d="M21 6.5l-4 4V7c0-.55-.45-1-1-1H9.82L21 17.18V6.5zM3.27 2L2 3.27 4.73 6H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.21 0 .39-.08.54-.18L19.73 21 21 19.73 3.27 2z"/>';
+                cameraLabel.textContent = '开启摄像头';
+                localVideo.querySelector('.local-placeholder').style.display = 'flex';
+                showToast('摄像头已关闭');
+            } else {
+                cameraBtn.classList.remove('active');
+                cameraBtnIcon.innerHTML = '<path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/>';
+                cameraLabel.textContent = '关闭摄像头';
+                localVideo.querySelector('.local-placeholder').style.display = 'none';
+                showToast('摄像头已开启');
+            }
+        }
+
+        // 结束通话
+        function endCall() {
+            if (callTimer) {
+                clearInterval(callTimer);
+            }
+            showToast('通话已结束');
+            setTimeout(() => {
+                window.location.href = getBackToChatUrl();
+            }, 1500);
+        }
+
+        // 模拟开始通话
+        function startCall() {
+            document.getElementById('remoteStatus').textContent = '正在连接...';
+            document.getElementById('callStatus').classList.add('show');
+            
+            setTimeout(() => {
+                document.getElementById('callStatus').classList.remove('show');
+                document.getElementById('remoteStatus').textContent = '通话中';
+                callStartTime = Date.now();
+                
+                // 开始计时
+                callTimer = setInterval(() => {
+                    const elapsed = Math.floor((Date.now() - callStartTime) / 1000);
+                    const minutes = Math.floor(elapsed / 60).toString().padStart(2, '0');
+                    const seconds = (elapsed % 60).toString().padStart(2, '0');
+                    document.getElementById('callTime').textContent = `${minutes}:${seconds}`;
+                }, 1000);
+            }, 2000);
+        }
+
+        // 页面加载时自动开始
+        startCall();
+    </script>
+</body>
+</html>

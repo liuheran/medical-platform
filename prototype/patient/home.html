@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>首页 - 在线问诊平台</title>
+    <link rel="stylesheet" href="../css/common.css">
+    <link rel="stylesheet" href="../css/patient.css">
+</head>
+<body>
+    <div class="page">
+        <!-- 顶部搜索区域 -->
+        <div class="home-header">
+            <div class="home-header-top">
+                <div class="home-location">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                        <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                    </svg>
+                    <span>北京</span>
+                </div>
+                <div class="home-search" onclick="goTo('search.html')">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                        <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                    </svg>
+                    <input type="text" placeholder="搜索医生、科室、疾病" readonly>
+                </div>
+                <div class="home-user-avatar" onclick="goTo('profile.html')">
+                    <img src="https://i.pravatar.cc/150?img=70" alt="">
+                </div>
+            </div>
+        </div>
+
+        <!-- 内容区域 -->
+        <div class="content" style="padding-top: 0; margin-top: -12px;">
+            <!-- 快捷入口 -->
+            <div class="quick-entry">
+                <div class="quick-entry-item" onclick="goTo('doctor-list.html?type=inquiry')">
+                    <div class="quick-entry-icon blue">
+                        <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                            <path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/>
+                        </svg>
+                    </div>
+                    <span class="quick-entry-label">快捷问诊</span>
+                </div>
+                <div class="quick-entry-item" onclick="goTo('doctor-list.html?type=appointment')">
+                    <div class="quick-entry-icon green">
+                        <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                            <path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM9 10H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2zm-8 4H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2z"/>
+                        </svg>
+                    </div>
+                    <span class="quick-entry-label">预约挂号</span>
+                </div>
+                <div class="quick-entry-item" onclick="goTo('health-record.html')">
+                    <div class="quick-entry-icon orange">
+                        <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                            <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-1 11h-4v4h-4v-4H6v-4h4V6h4v4h4v4z"/>
+                        </svg>
+                    </div>
+                    <span class="quick-entry-label">健康档案</span>
+                </div>
+                <div class="quick-entry-item" onclick="goTo('prescription-list.html')">
+                    <div class="quick-entry-icon red">
+                        <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                            <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+                        </svg>
+                    </div>
+                    <span class="quick-entry-label">处方购药</span>
+                </div>
+            </div>
+
+            <!-- 推荐医生 -->
+            <div class="section-header mt-lg">
+                <h2 class="section-title">推荐医生</h2>
+                <a href="doctor-list.html" class="section-more">
+                    查看更多
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                        <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>
+                    </svg>
+                </a>
+            </div>
+            <div id="doctor-list" style="padding: 0 16px;">
+                <!-- 动态渲染 -->
+            </div>
+
+            <!-- 热门科室 -->
+            <div class="section-header mt-lg">
+                <h2 class="section-title">热门科室</h2>
+                <a href="doctor-list.html" class="section-more">
+                    全部科室
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                        <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>
+                    </svg>
+                </a>
+            </div>
+            <div class="department-grid" id="department-grid">
+                <!-- 动态渲染 -->
+            </div>
+
+            <!-- 健康资讯 -->
+            <div class="section-header mt-lg">
+                <h2 class="section-title">健康资讯</h2>
+                <a href="#" class="section-more">
+                    更多
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                        <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>
+                    </svg>
+                </a>
+            </div>
+            <div id="news-list" style="padding: 0 16px;">
+                <!-- 动态渲染 -->
+            </div>
+        </div>
+
+        <!-- 底部导航 -->
+        <div class="tab-bar">
+            <div class="tab-item active">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                    <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+                </svg>
+                <span>首页</span>
+            </div>
+            <div class="tab-item" onclick="goTo('doctor-list.html')">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                    <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+                </svg>
+                <span>问诊</span>
+            </div>
+            <div class="tab-item" onclick="goTo('order-list.html')">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                    <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+                </svg>
+                <span>订单</span>
+            </div>
+            <div class="tab-item" onclick="goTo('profile.html')">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                    <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                </svg>
+                <span>我的</span>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/mock-data.js"></script>
+    <script>
+        // 检查登录状态
+        if (!isLoggedIn()) {
+            // 模拟已登录
+            mockLogin('13800138000', '123456');
+        }
+
+        // 渲染推荐医生
+        function renderDoctors() {
+            const container = document.getElementById('doctor-list');
+            const doctors = DOCTORS.filter(d => d.isOnline).slice(0, 3);
+            
+            container.innerHTML = doctors.map(doctor => {
+                const titleClass = doctor.titleLevel === 1 ? 'gold' : 
+                                   doctor.titleLevel === 2 ? 'silver' : '';
+                return `
+                    <div class="doctor-card" onclick="goTo('doctor-detail.html?id=${doctor.id}')" style="margin-bottom: 12px;">
+                        <div class="doctor-card-avatar">
+                            <img src="${doctor.avatar}" alt="${doctor.name}">
+                        </div>
+                        <div class="doctor-card-info">
+                            <div class="doctor-card-header">
+                                <span class="doctor-card-name">${doctor.name}</span>
+                                <span class="doctor-card-title ${titleClass}">${doctor.title}</span>
+                            </div>
+                            <div class="doctor-card-dept">${doctor.departmentName} · ${doctor.hospitalName}</div>
+                            <div class="doctor-card-specialty">擅长：${doctor.specialty}</div>
+                            <div class="doctor-card-footer">
+                                <div class="doctor-card-rating">
+                                    ★ ${doctor.rating}
+                                    <span>(${doctor.reviewCount}条评价)</span>
+                                </div>
+                                <div class="doctor-card-price">
+                                    <small>¥</small>${doctor.price}<small>/次</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // 渲染科室
+        function renderDepartments() {
+            const container = document.getElementById('department-grid');
+            const icons = ['❤️', '🔪', '👶', '👩', '🧴', '👁️', '👂', '🦷'];
+            
+            container.innerHTML = DEPARTMENTS.slice(0, 8).map((dept, index) => `
+                <div class="department-item" onclick="goTo('doctor-list.html?departmentId=${dept.id}')">
+                    <div class="department-icon">${icons[index]}</div>
+                    <span class="department-name">${dept.name}</span>
+                </div>
+            `).join('');
+        }
+
+        // 渲染健康资讯
+        function renderNews() {
+            const container = document.getElementById('news-list');
+            
+            container.innerHTML = HEALTH_NEWS.map(news => `
+                <div class="card card-hover" onclick="showToast('资讯详情开发中')" style="margin-bottom: 12px; display: flex; gap: 12px;">
+                    <img src="${news.cover}" alt="" style="width: 80px; height: 80px; border-radius: 8px; object-fit: cover;">
+                    <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center;">
+                        <div style="font-weight: 500; margin-bottom: 4px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">${news.title}</div>
+                        <div style="font-size: 12px; color: var(--text-secondary);">${news.source} · ${news.viewCount}阅读</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 初始化
+        renderDoctors();
+        renderDepartments();
+        renderNews();
+    </script>
+</body>
+</html>

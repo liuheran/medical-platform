@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>医生详情 - 在线问诊平台</title>
+    <link rel="stylesheet" href="../css/common.css">
+    <link rel="stylesheet" href="../css/patient.css">
+    <style>
+        .doctor-detail-header {
+            padding: 20px 16px 24px;
+        }
+
+        .doctor-detail-rating-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .inquiry-types {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .inquiry-type-card {
+            background: var(--bg-color);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 16px 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .inquiry-type-card:active {
+            transform: scale(0.98);
+        }
+
+        .inquiry-type-card.selected {
+            border-color: var(--primary-color);
+            background: var(--primary-bg);
+        }
+
+        .inquiry-type-card.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .inquiry-type-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-full);
+            background: var(--primary-bg);
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 8px;
+            font-size: 20px;
+        }
+
+        .inquiry-type-name {
+            font-size: 13px;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .inquiry-type-price {
+            font-size: 14px;
+            color: var(--error-color);
+            font-weight: 600;
+        }
+
+        .inquiry-type-price small {
+            font-size: 11px;
+            font-weight: normal;
+        }
+
+        .section-content {
+            padding: 0 16px;
+        }
+
+        .review-card {
+            padding: 16px 0;
+            border-bottom: 1px solid var(--bg-secondary);
+        }
+
+        .review-card:last-child {
+            border-bottom: none;
+        }
+
+        .review-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .review-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: var(--radius-full);
+            overflow: hidden;
+        }
+
+        .review-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .review-user {
+            flex: 1;
+        }
+
+        .review-name {
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .review-time {
+            font-size: 11px;
+            color: var(--text-disabled);
+        }
+
+        .review-rating {
+            color: var(--warning-color);
+            font-size: 12px;
+        }
+
+        .review-content {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 8px;
+        }
+
+        .review-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .review-tag {
+            padding: 2px 8px;
+            background: var(--primary-bg);
+            color: var(--primary-color);
+            border-radius: var(--radius-full);
+            font-size: 11px;
+        }
+
+        .fixed-bottom {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--bg-color);
+            padding: 12px 16px;
+            padding-bottom: calc(12px + 34px);
+            box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.06);
+            display: flex;
+            gap: 12px;
+        }
+
+        .fixed-bottom .btn {
+            flex: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="page" style="padding-bottom: 80px;">
+        <!-- 导航栏 -->
+        <div class="navbar" style="background: transparent; box-shadow: none;">
+            <div class="navbar-left">
+                <a href="javascript:goBack()" class="navbar-icon" style="background: rgba(0,0,0,0.3); border-radius: 50%; color: #fff;">
+                    <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                        <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+                    </svg>
+                </a>
+            </div>
+            <div class="navbar-title"></div>
+            <div class="navbar-right">
+                <a href="#" class="navbar-icon" style="background: rgba(0,0,0,0.3); border-radius: 50%; color: #fff;">
+                    <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                        <path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
+                    </svg>
+                </a>
+            </div>
+        </div>
+
+        <!-- 医生信息头部 -->
+        <div class="doctor-detail-header" style="background: linear-gradient(180deg, #1890FF 0%, #1890FF 100%); color: #fff;">
+            <div class="doctor-detail-info">
+                <div class="doctor-detail-avatar">
+                    <img src="" id="doctor-avatar" alt="">
+                </div>
+                <div class="doctor-detail-text">
+                    <div class="doctor-detail-name" id="doctor-name">加载中...</div>
+                    <div class="doctor-detail-title" id="doctor-title">-</div>
+                    <div class="doctor-detail-dept" id="doctor-dept">-</div>
+                    <div class="doctor-detail-hospital" id="doctor-hospital">-</div>
+                    <div class="doctor-detail-rating-row">
+                        <span style="color: #FFD666;">★★★★★</span>
+                        <span id="doctor-rating">-</span>
+                        <span style="opacity: 0.7;" id="doctor-reviews">-条评价</span>
+                    </div>
+                </div>
+            </div>
+            <div class="doctor-detail-stats">
+                <div class="doctor-detail-stat">
+                    <div class="doctor-detail-stat-value" id="doctor-consultations">-</div>
+                    <div class="doctor-detail-stat-label">问诊量</div>
+                </div>
+                <div class="doctor-detail-stat">
+                    <div class="doctor-detail-stat-value" id="doctor-experience">-</div>
+                    <div class="doctor-detail-stat-label">从业年限</div>
+                </div>
+                <div class="doctor-detail-stat">
+                    <div class="doctor-detail-stat-value" id="doctor-follows">-</div>
+                    <div class="doctor-detail-stat-label">关注量</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 内容区域 -->
+        <div class="content" style="margin-top: 0;">
+            <!-- 选择问诊类型 -->
+            <div style="background: var(--bg-color); margin: -12px -16px 0; padding: 16px;">
+                <div style="font-size: 16px; font-weight: 600; margin-bottom: 12px;">选择问诊方式</div>
+                <div class="inquiry-types">
+                    <div class="inquiry-type-card selected" data-type="1" data-price="30">
+                        <div class="inquiry-type-icon">
+                            <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                                <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/>
+                            </svg>
+                        </div>
+                        <div class="inquiry-type-name">图文问诊</div>
+                        <div class="inquiry-type-price">¥<span>30</span></div>
+                    </div>
+                    <div class="inquiry-type-card" data-type="2" data-price="50">
+                        <div class="inquiry-type-icon">
+                            <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                                <path d="M12 14c1.66 0 2.99-1.34 2.99-3L15 5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z"/>
+                            </svg>
+                        </div>
+                        <div class="inquiry-type-name">语音问诊</div>
+                        <div class="inquiry-type-price">¥<span>50</span></div>
+                    </div>
+                    <div class="inquiry-type-card" data-type="3" data-price="80">
+                        <div class="inquiry-type-icon">
+                            <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                                <path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/>
+                            </svg>
+                        </div>
+                        <div class="inquiry-type-name">视频问诊</div>
+                        <div class="inquiry-type-price">¥<span>80</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 擅长领域 -->
+            <div class="section-content mt-md">
+                <div class="card">
+                    <div class="card-title">擅长领域</div>
+                    <p id="doctor-specialty" style="color: var(--text-secondary); font-size: 14px; line-height: 1.6;">-</p>
+                </div>
+            </div>
+
+            <!-- 个人简介 -->
+            <div class="section-content mt-md">
+                <div class="card">
+                    <div class="card-title">个人简介</div>
+                    <p id="doctor-intro" style="color: var(--text-secondary); font-size: 14px; line-height: 1.6;">-</p>
+                </div>
+            </div>
+
+            <!-- 患者评价 -->
+            <div class="section-content mt-md">
+                <div class="section-header" style="padding: 0 0 12px;">
+                    <h2 class="section-title">患者评价</h2>
+                    <a href="#" class="section-more" onclick="showToast('评价列表开发中'); return false;">
+                        更多
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                            <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>
+                        </svg>
+                    </a>
+                </div>
+                <div class="card" id="review-list">
+                    <!-- 动态渲染 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 底部固定按钮 -->
+        <div class="fixed-bottom">
+            <button class="btn btn-default" onclick="showToast('已关注医生')">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                </svg>
+                关注
+            </button>
+            <button class="btn btn-primary btn-lg" onclick="startInquiry()">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                    <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/>
+                </svg>
+                开始问诊
+            </button>
+        </div>
+    </div>
+
+    <script src="../js/mock-data.js"></script>
+    <script>
+        // 获取医生ID
+        const params = getUrlParams();
+        const doctorId = parseInt(params.id) || 1001;
+        
+        // 获取医生信息
+        const doctor = DOCTORS.find(d => d.id === doctorId) || DOCTORS[0];
+        
+        // 填充医生信息
+        document.getElementById('doctor-avatar').src = doctor.avatar;
+        document.getElementById('doctor-name').textContent = doctor.name;
+        document.getElementById('doctor-title').textContent = doctor.title;
+        document.getElementById('doctor-dept').textContent = doctor.departmentName;
+        document.getElementById('doctor-hospital').textContent = doctor.hospitalName;
+        document.getElementById('doctor-rating').textContent = doctor.rating;
+        document.getElementById('doctor-reviews').textContent = doctor.reviewCount + '条评价';
+        document.getElementById('doctor-consultations').textContent = doctor.consultationCount;
+        document.getElementById('doctor-experience').textContent = doctor.experienceYears + '年';
+        document.getElementById('doctor-follows').textContent = '1520';
+        document.getElementById('doctor-specialty').textContent = doctor.specialty;
+        document.getElementById('doctor-intro').textContent = doctor.introduction;
+
+        // 问诊类型选择
+        let selectedInquiryType = 1;
+        let selectedPrice = doctor.price;
+
+        document.querySelectorAll('.inquiry-type-card').forEach(card => {
+            card.addEventListener('click', function() {
+                if (this.classList.contains('disabled')) return;
+                
+                document.querySelectorAll('.inquiry-type-card').forEach(c => c.classList.remove('selected'));
+                this.classList.add('selected');
+                selectedInquiryType = parseInt(this.dataset.type);
+                selectedPrice = doctor.price;
+            });
+        });
+
+        // 模拟评价数据
+        const mockReviews = [
+            {
+                avatar: 'https://i.pravatar.cc/150?img=71',
+                name: '张*',
+                rating: 5,
+                time: '2026-05-08',
+                content: '医生很耐心，讲解很详细，给了很好的建议，吃药后症状明显好转。',
+                tags: ['态度好', '专业']
+            },
+            {
+                avatar: 'https://i.pravatar.cc/150?img=72',
+                name: '李*',
+                rating: 5,
+                time: '2026-05-07',
+                content: '问诊过程很顺利，医生经验丰富，非常专业！',
+                tags: ['有耐心']
+            },
+            {
+                avatar: 'https://i.pravatar.cc/150?img=73',
+                name: '王*',
+                rating: 4,
+                time: '2026-05-06',
+                content: '回复及时，给的建议很实用，就是等待时间稍微有点长。',
+                tags: ['回复快', '专业']
+            }
+        ];
+
+        // 渲染评价列表
+        function renderReviews() {
+            const container = document.getElementById('review-list');
+            container.innerHTML = mockReviews.map(review => `
+                <div class="review-card">
+                    <div class="review-header">
+                        <div class="review-avatar">
+                            <img src="${review.avatar}" alt="">
+                        </div>
+                        <div class="review-user">
+                            <div class="review-name">${review.name}</div>
+                            <div class="review-time">${review.time}</div>
+                        </div>
+                        <div class="review-rating">${'★'.repeat(review.rating)}</div>
+                    </div>
+                    <div class="review-content">${review.content}</div>
+                    <div class="review-tags">
+                        ${review.tags.map(tag => `<span class="review-tag">${tag}</span>`).join('')}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 开始问诊
+        function startInquiry() {
+            if (!isLoggedIn()) {
+                mockLogin('13800138000', '123456');
+            }
+            
+            // 跳转到问诊页面（先创建问诊）
+            showToast('正在创建问诊...');
+            setTimeout(() => {
+                goTo(`inquiry-chat.html?doctorId=${doctor.id}&type=${selectedInquiryType}&price=${selectedPrice}`);
+            }, 1000);
+        }
+
+        // 初始化
+        renderReviews();
+
+        // 返回
+        function goBack() {
+            if (window.history.length > 1) {
+                window.history.back();
+            } else {
+                goTo('doctor-list.html');
+            }
+        }
+    </script>
+</body>
+</html>
